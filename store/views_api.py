@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db.models import Q
 from .models import Product, Contact, Order, ProductRating, UserLocation
 import requests
 from google.oauth2 import id_token
@@ -134,10 +135,31 @@ def api_get_products(request):
     category = request.GET.get('category')
     search = request.GET.get('search')
     
-    products = Product.objects.all()
+    products = Product.objects.all().order_by("id")
     
     if category:
-        products = products.filter(category=category)
+        cat_lower = category.lower()
+        if cat_lower == "t-shirts":
+            products = products.filter(
+                Q(name__icontains="t-shirt") | Q(name__icontains="tshirt")
+            )
+        elif cat_lower == "shirts":
+            products = (
+                products.filter(name__icontains="shirt")
+                .exclude(name__icontains="t-shirt")
+                .exclude(name__icontains="tshirt")
+            )
+        elif cat_lower == "pants":
+            products = products.filter(
+                Q(name__icontains="pant")
+                | Q(name__icontains="trouser")
+                | Q(name__icontains="jeans")
+            )
+        elif cat_lower == "shorts":
+            products = products.filter(name__icontains="short")
+        else:
+            products = products.filter(category=category)
+            
     if search:
         products = products.filter(name__icontains=search)
         
