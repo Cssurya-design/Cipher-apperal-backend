@@ -18,7 +18,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['user'] = {
             'id': self.user.id,
             'email': self.user.email,
-            'name': f"{self.user.first_name} {self.user.last_name}".strip(),
+            'name': self.user.name,
         }
         return data
 
@@ -32,18 +32,15 @@ def api_signup(request):
             data = json.loads(request.body)
             email = data.get('email')
             password = data.get('password')
-            first_name = data.get('first_name', '')
-            last_name = data.get('last_name', '')
+            name = data.get('name', '')
             
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"error": "Email already exists"}, status=400)
                 
             user = User.objects.create_user(
-                username=email,
                 email=email,
                 password=password,
-                first_name=first_name,
-                last_name=last_name
+                name=name,
             )
             return JsonResponse({"status": "success", "message": "User created successfully"})
         except Exception as e:
@@ -57,16 +54,14 @@ def api_user_profile(request):
     if request.method == 'GET':
         return JsonResponse({
             "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "phone": getattr(user, 'phone_number', ''),
+            "name": user.name,
+            "age": user.age,
         })
     elif request.method == 'POST':
         data = json.loads(request.body)
-        user.first_name = data.get('first_name', user.first_name)
-        user.last_name = data.get('last_name', user.last_name)
-        if hasattr(user, 'phone_number'):
-            user.phone_number = data.get('phone', user.phone_number)
+        user.name = data.get('name', user.name)
+        if data.get('age'):
+            user.age = data.get('age')
         user.save()
         return JsonResponse({"status": "success"})
 
@@ -180,6 +175,21 @@ def api_save_order(request):
                 )
             
             return JsonResponse({"status": "success", "message": "Order placed successfully!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@csrf_exempt
+def api_newsletter(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            from .models import NewsletterSubscriber
+            obj, created = NewsletterSubscriber.objects.get_or_create(email=email)
+            if created:
+                return JsonResponse({"status": "success", "message": "Subscribed successfully!"})
+            return JsonResponse({"status": "success", "message": "Already subscribed!"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Method not allowed"}, status=405)

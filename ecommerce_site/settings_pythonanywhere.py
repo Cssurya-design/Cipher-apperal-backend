@@ -5,6 +5,7 @@ Django settings for ecommerce_site project.
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -23,7 +24,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["cipherapparel.pythonanywhere.com", "localhost", "127.0.0.1"]
 
-CSRF_TRUSTED_ORIGINS = ["https://cipherapparel.pythonanywhere.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://cipherapparel.pythonanywhere.com",
+    "https://cipher-apperal.vercel.app",
+]
 
 
 # Application definition
@@ -35,14 +39,34 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_simplejwt",
     "store",
 ]
 
 AUTH_USER_MODEL = "store.CustomUser"
 
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    )
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -50,6 +74,12 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# CORS - Allow Vercel frontend
+CORS_ALLOWED_ORIGINS = [
+    "https://cipher-apperal.vercel.app",
+]
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "ecommerce_site.urls"
 
@@ -124,11 +154,6 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Stripe
-STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY", "")
-STRIPE_PUBLIC_KEY = os.environ.get("STRIPE_PUBLIC_KEY", "")
-YOUR_DOMAIN = "http://localhost:8000"
-
 # Google OAuth
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
@@ -146,3 +171,5 @@ DEFAULT_FROM_EMAIL = "cssurya2006@gmail.com"
 LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

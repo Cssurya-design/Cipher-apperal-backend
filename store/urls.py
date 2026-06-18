@@ -46,4 +46,6 @@ urlpatterns = [
     path('api/products/', views_api.api_get_products, name='api_products'),
     path('api/featured/', views_api.api_get_featured, name='api_featured'),
     path('api/save-order/', views_api.api_save_order, name='api_save_order'),
+    path('api/wishlist/', views_api.api_wishlist, name='api_wishlist'),
+    path('api/newsletter/', views_api.api_newsletter, name='api_newsletter'),
 ]
