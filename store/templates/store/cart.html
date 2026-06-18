@@ -356,8 +356,7 @@
         </div>
     </footer>
 
-    {# Pass Stripe public key and cart data from Django context to JavaScript #}
-    <script>const STRIPE_PUBLIC_KEY = "{{ stripe_public_key }}";</script>
+    {# Pass cart data from Django context to JavaScript #}
     <script>
         var SESSION_CART = [
             {% for item in cart_items %}
@@ -365,7 +364,6 @@
             {% endfor %}
         ];
     </script>
-    <script src="https://js.stripe.com/v3/"></script>
     <script src="{% static 'store/script.js' %}?v=6.0"></script>
     {% if user %}
     <script>

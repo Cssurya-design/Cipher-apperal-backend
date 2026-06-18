@@ -1,5 +1,4 @@
 import json
-import stripe
 import functools
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -22,9 +21,6 @@ from .models import (
     UserLocation,
     Wishlist,
 )
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 # ─── AUTH DECORATOR ───────────────────────────────────────────────────────────
 
@@ -157,7 +153,6 @@ def sproduct(request):
 
 def cart(request):
     user = get_logged_in_user(request)
-    stripe_public_key = settings.STRIPE_PUBLIC_KEY
     user_location = None
     if user:
         try:
@@ -173,7 +168,6 @@ def cart(request):
         subtotal += item["subtotal"]
 
     ctx = {
-        "stripe_public_key": stripe_public_key,
         "user": user,
         "user_location": user_location,
         "cart_items": cart_items,
@@ -651,51 +645,6 @@ def save_order_view(request):
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "method not allowed"}, status=405)
 
-
-# ─── STRIPE CHECKOUT ──────────────────────────────────────────────────────────
-
-
-@csrf_exempt
-def create_checkout_session(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Method not allowed"}, status=405)
-
-    try:
-        data = json.loads(request.body)
-        items = data.get("items", [])
-
-        if not items:
-            return JsonResponse({"error": "No items in cart"}, status=400)
-
-        domain = settings.YOUR_DOMAIN
-
-        line_items = []
-        for item in items:
-            line_items.append(
-                {
-                    "price_data": {
-                        "currency": "inr",
-                        "product_data": {
-                            "name": item["name"],
-                        },
-                        "unit_amount": round(float(item["price"]) * 100),
-                    },
-                    "quantity": item["quantity"],
-                }
-            )
-
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=line_items,
-            mode="payment",
-            success_url=f"{domain}/?success=true",
-            cancel_url=f"{domain}/cart/?canceled=true",
-        )
-
-        return JsonResponse({"id": session.id})
-
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
 
 
 # ─── NEWSLETTER ───────────────────────────────────────────────────────────────

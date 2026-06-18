@@ -27,7 +27,6 @@ urlpatterns = [
     # API endpoints
     path('rate-product/', views.rate_product_view, name='rate_product'),
     path('save-order/', views.save_order_view, name='save_order'),
-    path('create-checkout-session/', views.create_checkout_session, name='checkout'),
     path('subscribe-newsletter/', views.subscribe_newsletter, name='subscribe_newsletter'),
     path("save-location/", views.save_location_view, name="save_location"),
     path('toggle-wishlist/', views.toggle_wishlist, name='toggle_wishlist'),
