@@ -1,5 +1,4 @@
-{
-    "value":  [
+[
                   {
                       "model":  "store.product",
                       "pk":  1,
@@ -968,6 +967,4 @@
                                      "description":  "Check out our new Comfort Black Slacks, offering incredible style and value!"
                                  }
                   }
-              ],
-    "Count":  88
-}
+              ]
