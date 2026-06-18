@@ -44,8 +44,13 @@ urlpatterns = [
     path('api/contact/', views_api.api_contact, name='api_contact'),
     
     path('api/products/', views_api.api_get_products, name='api_products'),
+    path('api/products/<int:pk>/', views_api.api_get_product, name='api_get_product'),
     path('api/featured/', views_api.api_get_featured, name='api_featured'),
     path('api/save-order/', views_api.api_save_order, name='api_save_order'),
     path('api/wishlist/', views_api.api_wishlist, name='api_wishlist'),
     path('api/newsletter/', views_api.api_newsletter, name='api_newsletter'),
+    path('api/orders/', views_api.api_orders, name='api_orders'),
+    path('api/rate-product/', views_api.api_rate_product, name='api_rate_product'),
+    path('api/location/', views_api.api_location, name='api_location'),
+    path('api/auth/google/', views_api.api_google_login, name='api_google_login'),
 ]
