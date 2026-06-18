@@ -1,0 +1,656 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title> Cipher Apparel - Cart</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=6.0">
+</head>
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                {% if user %}
+                <li class="nav-location">
+                    <a href="javascript:void(0)" class="nav-location-trigger" id="location-trigger">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span class="nav-loc-text" id="location-text">
+                            {% if user_location %}{{ user_location.city|default:"Set Location" }}{% else %}Location{% endif %}
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-loc-arrow"></i>
+                    </a>
+                    <div class="nav-loc-dropdown" id="location-dropdown">
+                        <div class="nav-loc-dropdown-inner">
+                            <div class="nav-loc-header">
+                                <h4><i class="fa-solid fa-map-location-dot"></i> Delivery Location</h4>
+                                <a href="javascript:void(0)" class="nav-loc-close" id="location-close-btn"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                            {% if user_location %}
+                            <div class="nav-loc-saved" id="nav-loc-saved">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <div>
+                                    <strong>{{ user_location.address_line1 }}</strong>
+                                    {% if user_location.address_line2 %}<br>{{ user_location.address_line2 }}{% endif %}
+                                    <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                                    <br>{{ user_location.country }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn-detect-location" id="btn-detect-location">
+                                <i class="fa-solid fa-crosshairs"></i> Auto Detect My Location
+                            </button>
+                            <div id="detecting-status" style="display:none;" class="detecting-status">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Detecting your location...
+                            </div>
+                            <div class="nav-loc-divider"><span>or enter manually</span></div>
+                            <form id="location-form" class="location-form">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Address Line 1</label>
+                                        <input type="text" id="loc-address1" placeholder="Street address" value="{% if user_location %}{{ user_location.address_line1 }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Address Line 2</label>
+                                        <input type="text" id="loc-address2" placeholder="Optional" value="{% if user_location %}{{ user_location.address_line2 }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>City</label>
+                                        <input type="text" id="loc-city" placeholder="City" value="{% if user_location %}{{ user_location.city }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        <input type="text" id="loc-state" placeholder="State" value="{% if user_location %}{{ user_location.state }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Postal Code</label>
+                                        <input type="text" id="loc-postal" placeholder="Postal code" value="{% if user_location %}{{ user_location.postal_code }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        <input type="text" id="loc-country" placeholder="Country" value="{% if user_location %}{{ user_location.country }}{% endif %}">
+                                    </div>
+                                </div>
+                                <input type="hidden" id="loc-lat" value="{% if user_location and user_location.latitude %}{{ user_location.latitude }}{% endif %}">
+                                <input type="hidden" id="loc-lng" value="{% if user_location and user_location.longitude %}{{ user_location.longitude }}{% endif %}">
+                                <input type="hidden" id="loc-auto-address" value="{% if user_location %}{{ user_location.auto_detected_address }}{% endif %}">
+                                <button type="submit" class="btn-save-location" id="btn-save-location">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Address
+                                </button>
+                            </form>
+                            <div id="location-toast" class="location-toast" style="display:none;"></div>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a class="active" href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                {% if user %}
+                <li class="nav-profile-li">
+                    <a href="{% url 'dashboard' %}" class="nav-profile-link">
+                        {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" class="nav-avatar" alt="">
+                        {% else %}
+                        <i class="fa-solid fa-circle-user nav-avatar-icon"></i>
+                        {% endif %}
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-auth-links"><a href="{% url 'login' %}" class="btn-login">Login</a></li>
+                <li class="nav-auth-links"><a href="{% url 'signup' %}" class="btn-signup">Sign Up</a></li>
+                {% endif %}
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="page-header" class="about-header">
+        <h2>#Cart</h2>
+        <p>Save more with coupons &amp; up to 70% off!</p>
+    </section>
+
+    <section id="cart" class="section-p1">
+        <table width="100%">
+            <thead>
+                <tr>
+                    <td>remove</td>
+                    <td>image</td>
+                    <td>product</td>
+                    <td>size</td>
+                    <td>price</td>
+                    <td>quantity</td>
+                    <td>subtotal</td>
+                </tr>
+            </thead>
+            <tbody>
+            {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <form method="POST" action="{% url 'remove_from_cart' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="index" value="{{ forloop.counter0 }}">
+                            <button type="submit" style="background:none;border:none;cursor:pointer;color:#e74c3c;font-size:18px;" title="Remove"><i class="far fa-times-circle"></i></button>
+                        </form>
+                    </td>
+                    <td><img src="/static/store/images/products/{{ item.image }}" alt="" style="width:70px;"></td>
+                    <td>{{ item.name }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'update_cart' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="index" value="{{ forloop.counter0 }}">
+                            <select name="size" onchange="this.form.submit()" style="padding:5px;border-radius:4px;border:1px solid #cce7d0;background:#fff;">
+                                <option value="N/A" {% if item.size == 'N/A' or not item.size %}selected{% endif %}>Select Size</option>
+                                <option value="XL" {% if item.size == 'XL' %}selected{% endif %}>XL</option>
+                                <option value="XXL" {% if item.size == 'XXL' %}selected{% endif %}>XXL</option>
+                                <option value="XXXL" {% if item.size == 'XXXL' %}selected{% endif %}>XXXL</option>
+                                <option value="Free Size" {% if item.size == 'Free Size' %}selected{% endif %}>Free Size</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>₹{{ item.price }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'update_cart' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="index" value="{{ forloop.counter0 }}">
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" onchange="this.form.submit()" style="width:60px;">
+                        </form>
+                    </td>
+                    <td>₹{{ item.subtotal }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center;padding:40px;color:#888;">Your cart is empty. <a href="{% url 'shop' %}" style="color:#088178;text-decoration:underline;">Continue Shopping</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </section>
+
+    <section id="cart-add" class="section-p1">
+        <div id="coupon">
+            <h3>Apply Coupons</h3>
+            <input type="text" placeholder="Enter Your Coupon">
+            <button class="normal">Apply</button>
+        </div>
+        <div id="subtotal">
+            <h3>Cart Total</h3>
+            <table>
+                <tr>
+                    <td>Cart Subtotal</td>
+                    <td>₹ {{ cart_subtotal }}</td>
+                </tr>
+                <tr>
+                    <td>Shipping</td>
+                    <td>Free</td>
+                </tr>
+                <tr>
+                    <td><strong>Total</strong></td>
+                    <td><strong>₹ {{ cart_total }}</strong></td>
+                </tr>
+            </table>
+            <button class="normal" id="checkout-btn">Proceed to checkout</button>
+        </div>
+    </section>
+    <hr>
+
+    {% if user %}
+    <!-- Location Confirmation Modal -->
+    <div class="checkout-location-modal" id="checkout-location-modal">
+        <div class="checkout-location-overlay" id="checkout-location-overlay"></div>
+        <div class="checkout-location-card">
+            <div class="checkout-location-header">
+                <h3><i class="fa-solid fa-location-dot"></i> Confirm Delivery Address</h3>
+                <a href="javascript:void(0)" class="checkout-modal-close" id="checkout-modal-close"><i class="fa-solid fa-xmark"></i></a>
+            </div>
+            <div class="checkout-location-body">
+                {% if user_location %}
+                <div class="checkout-loc-display" id="checkout-loc-display">
+                    <div class="checkout-loc-address">
+                        <strong>{{ user_location.address_line1 }}</strong>
+                        {% if user_location.address_line2 %}<br>{{ user_location.address_line2 }}{% endif %}
+                        <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                        <br>{{ user_location.country }}
+                    </div>
+                    <a href="javascript:void(0)" class="checkout-loc-change" id="checkout-loc-change-btn">Change Address</a>
+                </div>
+                {% else %}
+                <div class="checkout-loc-none">
+                    <p>No delivery address saved yet.</p>
+                </div>
+                {% endif %}
+                <div class="checkout-loc-form-wrap" id="checkout-loc-form-wrap" style="{% if user_location %}display:none;{% endif %}">
+                    <button type="button" class="btn-detect-location" id="checkout-btn-detect">
+                        <i class="fa-solid fa-crosshairs"></i> Auto Detect My Location
+                    </button>
+                    <div id="checkout-detecting-status" style="display:none;" class="detecting-status">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Detecting your location...
+                    </div>
+                    <div class="nav-loc-divider"><span>or enter manually</span></div>
+                    <form id="checkout-location-form" class="location-form">
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Address Line 1</label>
+                                <input type="text" id="chk-loc-address1" placeholder="Street address" value="{% if user_location %}{{ user_location.address_line1 }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label>Address Line 2</label>
+                                <input type="text" id="chk-loc-address2" placeholder="Optional" value="{% if user_location %}{{ user_location.address_line2 }}{% endif %}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" id="chk-loc-city" placeholder="City" value="{% if user_location %}{{ user_location.city }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label>State</label>
+                                <input type="text" id="chk-loc-state" placeholder="State" value="{% if user_location %}{{ user_location.state }}{% endif %}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Postal Code</label>
+                                <input type="text" id="chk-loc-postal" placeholder="Postal code" value="{% if user_location %}{{ user_location.postal_code }}{% endif %}">
+                            </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <input type="text" id="chk-loc-country" placeholder="Country" value="{% if user_location %}{{ user_location.country }}{% endif %}">
+                            </div>
+                        </div>
+                        <input type="hidden" id="chk-loc-lat" value="{% if user_location and user_location.latitude %}{{ user_location.latitude }}{% endif %}">
+                        <input type="hidden" id="chk-loc-lng" value="{% if user_location and user_location.longitude %}{{ user_location.longitude }}{% endif %}">
+                        <input type="hidden" id="chk-loc-auto-address" value="{% if user_location %}{{ user_location.auto_detected_address }}{% endif %}">
+                    </form>
+                </div>
+                <div id="checkout-location-toast" class="location-toast" style="display:none;"></div>
+            </div>
+            <div class="checkout-location-footer">
+                {% if user_location %}
+                <button class="checkout-btn-confirm" id="checkout-btn-confirm">
+                    <i class="fa-solid fa-check"></i> Proceed to Pay
+                </button>
+                {% else %}
+                <button class="checkout-btn-confirm" id="checkout-btn-save-first" disabled>
+                    <i class="fa-solid fa-location-dot"></i> Save Address First
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- UPI Payment Modal -->
+    <div class="checkout-location-modal" id="upi-payment-modal" style="display:none;">
+        <div class="checkout-location-overlay" id="upi-payment-overlay"></div>
+        <div class="checkout-location-card" style="text-align: center; padding: 30px;">
+            <div class="checkout-location-header" style="justify-content: center; border-bottom: none;">
+                <h3 style="font-size: 24px; color: #088178;"><i class="fa-solid fa-qrcode"></i> Scan to Pay</h3>
+                <a href="javascript:void(0)" class="checkout-modal-close" id="upi-modal-close" style="position: absolute; right: 20px; top: 20px;"><i class="fa-solid fa-xmark"></i></a>
+            </div>
+            <div class="checkout-location-body">
+                <p style="margin-bottom: 20px; color: #666;">Please scan the QR code below using any UPI app (GPay, PhonePe, Paytm, etc.) to complete your payment of <strong>₹{{ cart_total }}</strong>.</p>
+                <img src="{% static 'store/images/upi-qr.jpg' %}" alt="UPI QR Code" style="max-width: 250px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                <h4 style="color: #1a1a1a; margin-top: 10px;">UPI ID: cssurya2006@okicici</h4>
+            </div>
+            <div class="checkout-location-footer" style="margin-top: 25px; border-top: none;">
+                <button class="normal" id="payment-done-btn" style="width: 100%; background: #088178; color: #fff;">
+                    <i class="fa-solid fa-check-double"></i> I've completed the payment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="section-p1">
+        <div class="col">
+            <img class="logo" src="{% static 'store/images/Logo1.png' %}" alt="">
+            <h4>Contact</h4>
+            <p><strong>Address: </strong> 275, Sampath St, Rathinapuri, Tatabad, Coimbatore</p>
+            <p><strong>Phone: </strong> (+91) 2254 3658 /(+91) 01 2345 6789</p>
+            <p><strong>Hours: </strong> 10:00 - 18:00, Mon - Sat</p>
+            <div class="follow">
+                <h4>Follow Us</h4>
+                <div class="icon">
+                    <i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i><i class="fab fa-instagram"></i><i class="fab fa-pinterest-p"></i><i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <h4>About</h4>
+            <a href="#">About Us</a><a href="#">Delivery Information</a><a href="#">Privacy Policy</a><a href="#">Terms &amp; Conditions</a><a href="#">Contact Us</a>
+        </div>
+        <div class="col">
+            <h4>My Account</h4>
+            <a href="#">Sign In</a><a href="#">View Cart</a><a href="#">My Wishlist</a><a href="#">Track My Order</a><a href="#">Help</a>
+        </div>
+        <div class="col install">
+            <h4>Install App</h4>
+            <p>From App Store or Google Play Store</p>
+            <div class="row">
+                <img src="{% static 'store/images/pay/app.jpg' %}" alt="">
+                <img src="{% static 'store/images/pay/play.jpg' %}" alt="">
+            </div>
+            <p>Secured Payment Gateways</p>
+            <img src="{% static 'store/images/pay/pay.png' %}" alt="">
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026, Cipher Apparel - All copyright reserved</p>
+        </div>
+    </footer>
+
+    {# Pass Stripe public key and cart data from Django context to JavaScript #}
+    <script>const STRIPE_PUBLIC_KEY = "{{ stripe_public_key }}";</script>
+    <script>
+        var SESSION_CART = [
+            {% for item in cart_items %}
+            { "name": "{{ item.name|escapejs }}", "price": {{ item.price }}, "quantity": {{ item.quantity }}, "size": "{{ item.size|default:'N/A'|escapejs }}" }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ];
+    </script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+    {% if user %}
+    <script>
+    (function() {
+        // ─── Nav Location Dropdown ───
+        var trigger = document.getElementById('location-trigger');
+        var dropdown = document.getElementById('location-dropdown');
+        var closeBtn = document.getElementById('location-close-btn');
+
+        if (trigger && dropdown) {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+        }
+        if (closeBtn && dropdown) {
+            closeBtn.addEventListener('click', function() { dropdown.classList.remove('open'); });
+        }
+        document.addEventListener('click', function(e) {
+            if (dropdown && !dropdown.contains(e.target) && trigger && !trigger.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        // ─── Nav Location: Detect & Save ───
+        var navDetectBtn = document.getElementById('btn-detect-location');
+        var navDetectStatus = document.getElementById('detecting-status');
+        var navForm = document.getElementById('location-form');
+        var navToast = document.getElementById('location-toast');
+
+        function showNavToast(msg, type) {
+            if (!navToast) return;
+            navToast.textContent = msg;
+            navToast.className = 'location-toast location-toast-' + (type || 'success');
+            navToast.style.display = 'block';
+            setTimeout(function() { navToast.style.display = 'none'; }, 3000);
+        }
+        function fillNavForm(addr) {
+            document.getElementById('loc-address1').value = addr.address_line1 || '';
+            document.getElementById('loc-city').value = addr.city || '';
+            document.getElementById('loc-state').value = addr.state || '';
+            document.getElementById('loc-postal').value = addr.postal_code || '';
+            document.getElementById('loc-country').value = addr.country || '';
+            document.getElementById('loc-auto-address').value = addr.full_address || '';
+            document.getElementById('loc-lat').value = addr.latitude || '';
+            document.getElementById('loc-lng').value = addr.longitude || '';
+        }
+        function parseBDC(data) {
+            var loc = data.locality || {};
+            var city = loc.name || data.city || '';
+            var state = '';
+            if (loc.administrativeDivisionLevel1) state = loc.administrativeDivisionLevel1.name || '';
+            var country = data.countryName || '';
+            var postal = loc.postcode || '';
+            var street = '';
+            if (data.streetNumber) street = data.streetNumber + ' ';
+            if (data.street) street += data.street;
+            return { address_line1: street.trim(), city: city, state: state, postal_code: postal, country: country, full_address: data.plusCode || city + ', ' + country, latitude: data.latitude, longitude: data.longitude };
+        }
+        function parseNom(data) {
+            var addr = data.address || {};
+            var hn = addr.house_number || '', rd = addr.road || '', sb = addr.suburb || '';
+            var a1 = (hn ? hn + ' ' : '') + rd; if (sb && !a1.includes(sb)) a1 += (a1 ? ', ' : '') + sb;
+            return { address_line1: a1, city: addr.city || addr.town || addr.village || '', state: addr.state || '', postal_code: addr.postcode || '', country: addr.country || '', full_address: data.display_name || '', latitude: data.lat, longitude: data.lon };
+        }
+        function doDetect(lat, lng, accuracy, fillFn, doneFn) {
+            fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=en')
+            .then(function(r){ return r.json(); })
+            .then(function(d){ fillFn(parseBDC(d)); doneFn(true, accuracy); })
+            .catch(function(){
+                fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+lat+'&lon='+lng+'&addressdetails=1',{headers:{'Accept-Language':'en'}})
+                .then(function(r){return r.json();})
+                .then(function(d){if(d.address){fillFn(parseNom(d));doneFn(true,accuracy);}else{doneFn(false);}})
+                .catch(function(){doneFn(false);});
+            });
+        }
+
+        if (navDetectBtn) {
+            navDetectBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) { showNavToast('Geolocation not supported.', 'error'); return; }
+                navDetectBtn.disabled = true; navDetectStatus.style.display = 'block';
+                navigator.geolocation.getCurrentPosition(function(p) {
+                    doDetect(p.coords.latitude, p.coords.longitude, p.coords.accuracy, fillNavForm, function(ok, acc) {
+                        navDetectBtn.disabled = false; navDetectStatus.style.display = 'none';
+                        showNavToast(ok ? 'Location detected (accuracy: '+Math.round(acc)+'m).' : 'Could not parse address.', ok ? 'success' : 'error');
+                    });
+                }, function(e) { navDetectBtn.disabled = false; navDetectStatus.style.display = 'none'; showNavToast('Location error: code '+e.code, 'error'); },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            });
+        }
+
+        if (navForm) {
+            navForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var btn = document.getElementById('btn-save-location');
+                btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+                var csrf = document.querySelector('#location-form [name=csrfmiddlewaretoken]').value;
+                var p = { address_line1: document.getElementById('loc-address1').value.trim(), address_line2: document.getElementById('loc-address2').value.trim(), city: document.getElementById('loc-city').value.trim(), state: document.getElementById('loc-state').value.trim(), postal_code: document.getElementById('loc-postal').value.trim(), country: document.getElementById('loc-country').value.trim(), latitude: parseFloat(document.getElementById('loc-lat').value)||null, longitude: parseFloat(document.getElementById('loc-lng').value)||null, auto_detected_address: document.getElementById('loc-auto-address').value.trim() };
+                fetch('/save-location/', { method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':csrf}, body: JSON.stringify(p) })
+                .then(function(r){return r.json();})
+                .then(function(d){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Address'; if(d.status==='ok'){ var lt=document.getElementById('location-text'); lt.textContent=p.city||p.address_line1||'Saved'; showNavToast('Location saved!','success'); setTimeout(function(){dropdown.classList.remove('open');},1500); } else { showNavToast(d.message||'Error','error'); } })
+                .catch(function(){ btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-floppy-disk"></i> Save Address'; showNavToast('Network error.','error'); });
+            });
+        }
+
+        // ─── Checkout Location Modal ───
+        var modal = document.getElementById('checkout-location-modal');
+        var modalOverlay = document.getElementById('checkout-location-overlay');
+        var modalClose = document.getElementById('checkout-modal-close');
+        var changeBtn = document.getElementById('checkout-loc-change-btn');
+        var formWrap = document.getElementById('checkout-loc-form-wrap');
+        var confirmBtn = document.getElementById('checkout-btn-confirm');
+        var saveFirstBtn = document.getElementById('checkout-btn-save-first');
+
+        function showModal() { if (modal) modal.classList.add('active'); }
+        function hideModal() { if (modal) modal.classList.remove('active'); }
+
+        if (modalClose) modalClose.addEventListener('click', hideModal);
+        if (modalOverlay) modalOverlay.addEventListener('click', hideModal);
+        if (changeBtn) changeBtn.addEventListener('click', function() { formWrap.style.display = 'block'; changeBtn.style.display = 'none'; });
+
+        // Detect button in modal
+        var chkDetectBtn = document.getElementById('checkout-btn-detect');
+        var chkDetectStatus = document.getElementById('checkout-detecting-status');
+        var chkToast = document.getElementById('checkout-location-toast');
+
+        function showChkToast(msg, type) {
+            if (!chkToast) return;
+            chkToast.textContent = msg;
+            chkToast.className = 'location-toast location-toast-' + (type || 'success');
+            chkToast.style.display = 'block';
+            setTimeout(function() { chkToast.style.display = 'none'; }, 3000);
+        }
+        function fillChkForm(addr) {
+            document.getElementById('chk-loc-address1').value = addr.address_line1 || '';
+            document.getElementById('chk-loc-city').value = addr.city || '';
+            document.getElementById('chk-loc-state').value = addr.state || '';
+            document.getElementById('chk-loc-postal').value = addr.postal_code || '';
+            document.getElementById('chk-loc-country').value = addr.country || '';
+            document.getElementById('chk-loc-auto-address').value = addr.full_address || '';
+            document.getElementById('chk-loc-lat').value = addr.latitude || '';
+            document.getElementById('chk-loc-lng').value = addr.longitude || '';
+        }
+
+        if (chkDetectBtn) {
+            chkDetectBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) { showChkToast('Geolocation not supported.', 'error'); return; }
+                chkDetectBtn.disabled = true; chkDetectStatus.style.display = 'block';
+                navigator.geolocation.getCurrentPosition(function(p) {
+                    doDetect(p.coords.latitude, p.coords.longitude, p.coords.accuracy, fillChkForm, function(ok, acc) {
+                        chkDetectBtn.disabled = false; chkDetectStatus.style.display = 'none';
+                        showChkToast(ok ? 'Location detected!' : 'Could not parse address.', ok ? 'success' : 'error');
+                        if (saveFirstBtn) saveFirstBtn.disabled = false;
+                    });
+                }, function(e) { chkDetectBtn.disabled = false; chkDetectStatus.style.display = 'none'; showChkToast('Location error.', 'error'); },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            });
+        }
+
+        // Save location from modal then proceed to UPI
+        function saveAndProceed() {
+            var csrf = document.querySelector('#checkout-location-form [name=csrfmiddlewaretoken]') ?
+                document.querySelector('#checkout-location-form [name=csrfmiddlewaretoken]').value :
+                document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            var hasChkForm = document.getElementById('chk-loc-address1');
+            var payload;
+            if (hasChkForm && hasChkForm.value) {
+                payload = {
+                    address_line1: document.getElementById('chk-loc-address1').value.trim(),
+                    address_line2: (document.getElementById('chk-loc-address2') || {value:''}).value.trim(),
+                    city: document.getElementById('chk-loc-city').value.trim(),
+                    state: document.getElementById('chk-loc-state').value.trim(),
+                    postal_code: document.getElementById('chk-loc-postal').value.trim(),
+                    country: document.getElementById('chk-loc-country').value.trim(),
+                    latitude: parseFloat(document.getElementById('chk-loc-lat').value) || null,
+                    longitude: parseFloat(document.getElementById('chk-loc-lng').value) || null,
+                    auto_detected_address: (document.getElementById('chk-loc-auto-address') || {value:''}).value.trim()
+                };
+            } else {
+                payload = null;
+            }
+
+            if (payload && (payload.address_line1 || payload.city)) {
+                fetch('/save-location/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+                    body: JSON.stringify(payload)
+                })
+                .then(function() { proceedToUPI(); })
+                .catch(function() { proceedToUPI(); });
+            } else {
+                proceedToUPI();
+            }
+        }
+
+        var upiModal = document.getElementById('upi-payment-modal');
+        var upiOverlay = document.getElementById('upi-payment-overlay');
+        var upiClose = document.getElementById('upi-modal-close');
+        var paymentDoneBtn = document.getElementById('payment-done-btn');
+
+        function showUpiModal() { if (upiModal) upiModal.style.display = 'flex'; }
+        function hideUpiModal() { if (upiModal) upiModal.style.display = 'none'; }
+
+        if (upiClose) upiClose.addEventListener('click', hideUpiModal);
+        if (upiOverlay) upiOverlay.addEventListener('click', hideUpiModal);
+
+        function proceedToUPI() {
+            hideModal();
+            var cartData = SESSION_CART || [];
+            if (cartData.length === 0) { alert("Your cart is empty!"); return; }
+
+            // Detect mobile
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Trigger deep link for UPI apps
+                var upiId = "cssurya2006@okicici";
+                var upiName = "Cipher Apparel";
+                var amount = "{{ cart_total|default:'0' }}";
+                var upiUrl = "upi://pay?pa=" + encodeURIComponent(upiId) + "&pn=" + encodeURIComponent(upiName) + "&am=" + amount + "&cu=INR";
+                
+                // Show a confirm dialog to simulate they paid, or just save the order directly
+                var confirmed = confirm("You will be redirected to your UPI app to pay ₹" + amount + ". Click OK once you have completed the payment to confirm your order.");
+                if (confirmed) {
+                    window.location.href = upiUrl;
+                    saveOrderBackend();
+                }
+            } else {
+                // Show UPI Modal instead of Stripe
+                showUpiModal();
+            }
+        }
+
+        function saveOrderBackend() {
+            var cartData = SESSION_CART || [];
+            var csrf = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            var checkoutBtn = document.getElementById('checkout-btn');
+            if (checkoutBtn) { checkoutBtn.innerText = "Processing..."; checkoutBtn.disabled = true; }
+            hideUpiModal();
+
+            fetch('/save-order/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
+                body: JSON.stringify({ items: cartData })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'success' || data.status === 'saved') {
+                    alert("Thank you! Your order has been placed successfully.");
+                    window.location.href = '/dashboard/';
+                } else {
+                    alert("Error saving order. Status: " + data.status);
+                    if(checkoutBtn){checkoutBtn.innerText="Proceed to checkout";checkoutBtn.disabled=false;}
+                }
+            })
+            .catch(function(err) {
+                alert("Error saving order: " + err.message);
+                if(checkoutBtn){checkoutBtn.innerText="Proceed to checkout";checkoutBtn.disabled=false;}
+            });
+        }
+
+        if (paymentDoneBtn) {
+            paymentDoneBtn.addEventListener('click', function() {
+                saveOrderBackend();
+            });
+        }
+
+        // Intercept "Proceed to checkout" button
+        var checkoutBtnEl = document.getElementById('checkout-btn');
+        if (checkoutBtnEl) {
+            // Remove the old listener by cloning
+            var newBtn = checkoutBtnEl.cloneNode(true);
+            checkoutBtnEl.parentNode.replaceChild(newBtn, checkoutBtnEl);
+            newBtn.addEventListener('click', function() {
+                var cartData = SESSION_CART || [];
+                if (cartData.length === 0) { alert("Your cart is empty!"); return; }
+                if (modal) { showModal(); } else { proceedToUPI(); }
+            });
+        }
+
+        if (confirmBtn) confirmBtn.addEventListener('click', saveAndProceed);
+        if (saveFirstBtn) saveFirstBtn.addEventListener('click', saveAndProceed);
+    })();
+    </script>
+    {% endif %}
+</body>
+</html>

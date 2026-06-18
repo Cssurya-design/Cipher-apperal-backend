@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title>Edit Profile - Cipher Apparel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=6.0">
+</head>
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                <li class="nav-location">
+                    <a href="javascript:void(0)" class="nav-location-trigger" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span class="nav-loc-text">{% if user_location %}{{ user_location.city|default:"Location" }}{% else %}Location{% endif %}</span>
+                        <i class="fa-solid fa-chevron-down nav-loc-arrow"></i>
+                    </a>
+                    <div class="nav-loc-dropdown">
+                        <div class="nav-loc-dropdown-inner">
+                            <div class="nav-loc-header">
+                                <h4><i class="fa-solid fa-location-dot"></i> Delivery Location</h4>
+                                <a href="javascript:void(0)" class="nav-loc-close" onclick="this.closest('.nav-loc-dropdown').classList.remove('open')"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                            {% if user_location %}
+                            <div class="nav-loc-saved">
+                                <i class="fa-solid fa-map-pin"></i>
+                                <div>
+                                    <strong>{{ user_location.address_line1 }}</strong>{% if user_location.address_line2 %}, {{ user_location.address_line2 }}{% endif %}
+                                    <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                                    <br>{{ user_location.country }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p style="text-align:center;color:#999;font-size:13px;">No location set</p>
+                            {% endif %}
+                            <a href="{% url 'index' %}" class="btn-detect-location" style="text-align:center;text-decoration:none;display:block;">
+                                <i class="fa-solid fa-pen"></i> Manage on Homepage
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                {% if user %}
+                <li class="nav-profile-li">
+                    <a href="{% url 'dashboard' %}" class="nav-profile-link">
+                        {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" class="nav-avatar" alt="">
+                        {% else %}
+                        <i class="fa-solid fa-circle-user nav-avatar-icon"></i>
+                        {% endif %}
+                    </a>
+                </li>
+                {% endif %}
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="auth-page" class="section-p1">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <h2>Edit Profile</h2>
+                    <p>Update your personal information</p>
+                </div>
+
+                {% if messages %}
+                <div class="auth-messages">
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="POST" enctype="multipart/form-data" class="auth-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-image"></i> Profile Picture</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" name="profile_pic" accept="image/*" id="profile-pic-input">
+                            <div class="file-upload-preview" id="pic-preview">
+                                {% if user.profile_pic %}
+                                <img src="{{ user.profile_pic.url }}" alt="Current">
+                                {% else %}
+                                <i class="fa-solid fa-camera"></i>
+                                <span>Choose Photo</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-user"></i> Full Name</label>
+                        <input type="text" name="name" value="{{ user.name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-envelope"></i> Email</label>
+                        <input type="email" value="{{ user.email }}" disabled>
+                        <small style="color:#888;">Email cannot be changed</small>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-calendar"></i> Age</label>
+                        <input type="number" name="age" value="{{ user.age|default_if_none:'' }}" min="1" max="150">
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fa-solid fa-check"></i> Save Changes
+                    </button>
+                    <p class="auth-switch"><a href="{% url 'dashboard' %}"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    document.getElementById('profile-pic-input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('pic-preview');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                preview.innerHTML = `<img src="${ev.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    </script>
+
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+</body>
+</html>

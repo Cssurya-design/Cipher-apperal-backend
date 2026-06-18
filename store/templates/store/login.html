@@ -1,0 +1,98 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title>Login - Cipher Apparel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=7.1">
+</head>
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="auth-page" class="section-p1">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <h2>Welcome Back</h2>
+                    <p>Log in to your account</p>
+                </div>
+
+                {% if messages %}
+                <div class="auth-messages">
+                    {% for msg in messages %}
+                    <div class="alert alert-{{ msg.tags }}">{{ msg }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="POST" class="auth-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-envelope"></i> Email</label>
+                        <input type="email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                        <label><i class="fa-solid fa-lock"></i> Password</label>
+                        <input type="password" name="password" id="login-password" placeholder="Enter your password" required style="padding-right: 40px;">
+                        <i class="fa-solid fa-lock toggle-password" style="position: absolute; right: 15px; top: 40px; cursor: pointer; color: #666;" onclick="togglePasswordVisibility('login-password', this)"></i>
+                    </div>
+                    <button type="submit" class="auth-btn">
+                        <i class="fa-solid fa-right-to-bracket"></i> Log In
+                    </button>
+                    
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+                    
+                    <a href="{% url 'google_login' %}{% if next %}?next={{ next }}{% endif %}" class="google-btn">
+                        <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google Logo">
+                        Continue with Google
+                    </a>
+                    
+                    <p class="auth-switch">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    function togglePasswordVisibility(inputId, icon) {
+        const input = document.getElementById(inputId);
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-lock');
+            icon.classList.add('fa-unlock');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-unlock');
+            icon.classList.add('fa-lock');
+        }
+    }
+    </script>
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+</body>
+</html>

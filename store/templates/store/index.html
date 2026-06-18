@@ -1,0 +1,583 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title>Cipher Apparel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=6.0">
+</head>
+
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a class="active" href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                {% if user %}
+                <li class="nav-location">
+                    <a href="javascript:void(0)" class="nav-location-trigger" id="location-trigger">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span class="nav-loc-text" id="location-text">
+                            {% if user_location %}{{ user_location.city|default:"Set Location" }}{% else %}Location{% endif %}
+                        </span>
+                        <i class="fa-solid fa-chevron-down nav-loc-arrow"></i>
+                    </a>
+                    <div class="nav-loc-dropdown" id="location-dropdown">
+                        <div class="nav-loc-dropdown-inner">
+                            <div class="nav-loc-header">
+                                <h4><i class="fa-solid fa-map-location-dot"></i> Delivery Location</h4>
+                                <a href="javascript:void(0)" class="nav-loc-close" id="location-close-btn"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                            {% if user_location %}
+                            <div class="nav-loc-saved" id="nav-loc-saved">
+                                <i class="fa-solid fa-location-dot"></i>
+                                <div>
+                                    <strong>{{ user_location.address_line1 }}</strong>
+                                    {% if user_location.address_line2 %}<br>{{ user_location.address_line2 }}{% endif %}
+                                    <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                                    <br>{{ user_location.country }}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <button type="button" class="btn-detect-location" id="btn-detect-location">
+                                <i class="fa-solid fa-crosshairs"></i> Auto Detect My Location
+                            </button>
+                            <div id="detecting-status" style="display:none;" class="detecting-status">
+                                <i class="fa-solid fa-spinner fa-spin"></i> Detecting your location...
+                            </div>
+                            <div class="nav-loc-divider"><span>or enter manually</span></div>
+                            <form id="location-form" class="location-form">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Address Line 1</label>
+                                        <input type="text" id="loc-address1" placeholder="Street address, house number" value="{% if user_location %}{{ user_location.address_line1 }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Address Line 2</label>
+                                        <input type="text" id="loc-address2" placeholder="Apartment, suite (optional)" value="{% if user_location %}{{ user_location.address_line2 }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>City</label>
+                                        <input type="text" id="loc-city" placeholder="City" value="{% if user_location %}{{ user_location.city }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>State</label>
+                                        <input type="text" id="loc-state" placeholder="State / Province" value="{% if user_location %}{{ user_location.state }}{% endif %}">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Postal Code</label>
+                                        <input type="text" id="loc-postal" placeholder="Postal / ZIP code" value="{% if user_location %}{{ user_location.postal_code }}{% endif %}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        <input type="text" id="loc-country" placeholder="Country" value="{% if user_location %}{{ user_location.country }}{% endif %}">
+                                    </div>
+                                </div>
+                                <input type="hidden" id="loc-lat" value="{% if user_location and user_location.latitude %}{{ user_location.latitude }}{% endif %}">
+                                <input type="hidden" id="loc-lng" value="{% if user_location and user_location.longitude %}{{ user_location.longitude }}{% endif %}">
+                                <input type="hidden" id="loc-auto-address" value="{% if user_location %}{{ user_location.auto_detected_address }}{% endif %}">
+                                <button type="submit" class="btn-save-location" id="btn-save-location">
+                                    <i class="fa-solid fa-floppy-disk"></i> Save Address
+                                </button>
+                            </form>
+                            <div id="location-toast" class="location-toast" style="display:none;"></div>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                {% if user %}
+                <li class="nav-profile-li">
+                    <a href="{% url 'dashboard' %}" class="nav-profile-link">
+                        {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" class="nav-avatar" alt="">
+                        {% else %}
+                        <i class="fa-solid fa-circle-user nav-avatar-icon"></i>
+                        {% endif %}
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-auth-links"><a href="{% url 'login' %}" class="btn-login">Login</a></li>
+                <li class="nav-auth-links"><a href="{% url 'signup' %}" class="btn-signup">Sign Up</a></li>
+                {% endif %}
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="hero">
+        <div class="hero-text hidden-animate delay-1">
+            <h4>Trade-in-offer</h4>
+            <h2>Super value deals</h2>
+            <h1>On all products</h1>
+            <p>Save more with coupons &amp; up to 70% off!</p>
+            <a href="{% url 'shop' %}" class="normal" style="text-decoration:none;">Shop Now</a>
+        </div>
+        <div class="hero-img hidden-animate delay-2">
+            <img src="{% static 'store/images/hero-new.jpg' %}" alt="Hero Image">
+        </div>
+    </section>
+
+    <section id="feature" class="section-p1">
+        <div class="fe-box hidden-animate delay-1">
+            <img src="{% static 'store/images/features/f1.png' %}" alt="">
+            <h6>Free Shipping</h6>
+        </div>
+        <div class="fe-box hidden-animate delay-2">
+            <img src="{% static 'store/images/features/f2.png' %}" alt="">
+            <h6>Online Order</h6>
+        </div>
+        <div class="fe-box hidden-animate delay-3">
+            <img src="{% static 'store/images/features/f3.png' %}" alt="">
+            <h6>Save Money</h6>
+        </div>
+        <div class="fe-box hidden-animate delay-4">
+            <img src="{% static 'store/images/features/f4.png' %}" alt="">
+            <h6>Promotions</h6>
+        </div>
+        <div class="fe-box hidden-animate delay-1">
+            <img src="{% static 'store/images/features/f5.png' %}" alt="">
+            <h6>Happy Sell</h6>
+        </div>
+        <div class="fe-box hidden-animate delay-2">
+            <img src="{% static 'store/images/features/f6.png' %}" alt="">
+            <h6>F24/7 Support</h6>
+        </div>
+    </section>
+
+    <section id="product1" class="section-p1">
+        <h2 class="hidden-animate">Featured Products</h2>
+        <p class="hidden-animate delay-1">Summer Collection New Modern Design</p>
+        <div class="pro-container hidden-animate delay-2">
+            {% for product in featured_products %}
+            <div class="pro">
+                <img src="{% static 'store/images/products/' %}{{ product.image }}" alt="" onclick="viewProduct(this);" style="cursor: pointer;">
+                <div class="des">
+                    <span></span>
+                    <h5>{{ product.name }}</h5>
+                    <div class="star">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4>₹{{ product.price }}</h4>
+                </div>
+                <a href="#" class="wishlist-link" data-product-id="{{ product.id }}" onclick="toggleWishlist(event, this)">
+                    <i class="{% if product.id in wishlist_product_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart wishlist-btn"></i>
+                </a>
+                <form method="POST" action="{% url 'add_to_cart' %}" style="display:inline;">{% csrf_token %}<input type="hidden" name="product_id" value="{{ product.id }}"><input type="hidden" name="next" value="/"><button type="submit" class="cart" title="Add to Cart"><i class="fa-solid fa-cart-shopping"></i></button></form>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if cart_added %}
+    <div id="server-cart-toast" style="position:fixed;top:20px;right:20px;background:#fff;color:#1a1a1a;padding:14px 24px;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.15);z-index:99999;font-size:15px;font-weight:600;display:flex;align-items:center;border:1px solid #cce7d0;">
+        <i class="fa-solid fa-check-circle" style="margin-right:8px;color:#088178;"></i> {{ cart_added }} added to cart!
+    </div>
+    <script>setTimeout(function(){ var t=document.getElementById('server-cart-toast'); if(t) t.style.display='none'; }, 3000);</script>
+    {% endif %}
+
+    <section id="banner" class="section-m1 hidden-animate">
+        <h4>Repair Services</h4>
+        <h2>Up to <span>70% off</span> All t-shirts and accessories</h2>
+        <button class="normal">Explore more</button>
+    </section>
+
+    <section id="product1" class="section-p1">
+        <h2 class="hidden-animate">New Arrivals</h2>
+        <p class="hidden-animate delay-1">Summer Collection New Modern Design</p>
+        <div class="pro-container hidden-animate delay-2">
+            {% for product in new_arrivals %}
+            <div class="pro">
+                <img src="{% static 'store/images/products/' %}{{ product.image }}" alt="" onclick="viewProduct(this);" style="cursor: pointer;">
+                <div class="des">
+                    <span></span>
+                    <h5>{{ product.name }}</h5>
+                    <div class="star">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <h4>₹{{ product.price }}</h4>
+                </div>
+                <a href="#" class="wishlist-link" data-product-id="{{ product.id }}" onclick="toggleWishlist(event, this)">
+                    <i class="{% if product.id in wishlist_product_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart wishlist-btn"></i>
+                </a>
+                <form method="POST" action="{% url 'add_to_cart' %}" style="display:inline;">{% csrf_token %}<input type="hidden" name="product_id" value="{{ product.id }}"><input type="hidden" name="next" value="/"><button type="submit" class="cart" title="Add to Cart"><i class="fa-solid fa-cart-shopping"></i></button></form>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="sm-banner" class="section-p1">
+        <div class="banner-box hidden-animate delay-1">
+            <h4>crazy deals</h4>
+            <h2>buy 1 get 1 free</h2>
+            <span>The best classic dress is on sale at cipher apparel</span>
+            <button>Learn More</button>
+        </div>
+        <div class="banner-box2 hidden-animate delay-2">
+            <h4>spring/summer</h4>
+            <h2>upcoming season</h2>
+            <span>The best classic dress is on sale at cipher apparel</span>
+            <button>Learn More</button>
+        </div>
+    </section>
+
+    <section id="banner3">
+        <div class="banner-box hidden-animate delay-1">
+            <h2>SEASONAL SALE</h2>
+            <h3>Winter Collection -50% OFF</h3>
+        </div>
+        <div class="banner-box2 hidden-animate delay-2">
+            <h2>NEW FOOTWEAR COLLECTION</h2>
+            <h3>Spring/Summer 2026</h3>
+        </div>
+        <div class="banner-box3 hidden-animate delay-3">
+            <h2>T-SHIRTS</h2>
+            <h3>New Trendy Prints</h3>
+        </div>
+    </section>
+
+    <section id="newsletter" class="section-p1 section-m1 hidden-animate">
+        <div class="newstext">
+            <h4>Sign up Newsletters</h4>
+            <p>Get E-mail updates about our latest shop and <span>special offers.</span></p>
+        </div>
+        <div class="form">
+            <input type="email" id="newsletter-email" placeholder="Your email address">
+            <button class="normal" onclick="subscribeNewsletter()">Sign Up</button>
+        </div>
+    </section>
+
+    <footer class="section-p1 hidden-animate delay-1">
+        <div class="col">
+            <img class="logo" src="{% static 'store/images/Logo1.png' %}" alt="">
+            <h4>Contact</h4>
+            <p><strong>Address: </strong> 275, Sampath St, Rathinapuri, Tatabad, Coimbatore</p>
+            <p><strong>Phone: </strong> (+91) 2254 3658 /(+91) 01 2345 6789</p>
+            <p><strong>Hours: </strong> 10:00 - 18:00, Mon - Sat</p>
+            <div class="follow">
+                <h4>Follow Us</h4>
+                <div class="icon">
+                    <i class="fab fa-facebook-f"></i>
+                    <i class="fab fa-twitter"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-pinterest-p"></i>
+                    <i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <h4>About</h4>
+            <a href="#">About Us</a>
+            <a href="#">Delivery Information</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms &amp; Conditions</a>
+            <a href="#">Contact Us</a>
+        </div>
+
+        <div class="col">
+            <h4>My Account</h4>
+            <a href="#">Sign In</a>
+            <a href="#">View Cart</a>
+            <a href="#">My Wishlist</a>
+            <a href="#">Track My Order</a>
+            <a href="#">Help</a>
+        </div>
+
+        <div class="col install">
+            <h4>Install App</h4>
+            <p>From App Store or Google Play Store</p>
+            <div class="row">
+                <img src="{% static 'store/images/pay/app.jpg' %}" alt="">
+                <img src="{% static 'store/images/pay/play.jpg' %}" alt="">
+            </div>
+            <p>Secured Payment Gateways</p>
+            <img src="{% static 'store/images/pay/pay.png' %}" alt="">
+        </div>
+
+        <div class="copyright">
+            <p>&copy; 2026, Cipher Apparel - All copyright reserved</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+    <script>
+        function subscribeNewsletter() {
+            const emailInput = document.getElementById('newsletter-email');
+            const email = emailInput.value.trim();
+            if (!email) {
+                alert("Please enter a valid email address.");
+                return;
+            }
+
+            fetch('/subscribe-newsletter/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert(data.message);
+                    emailInput.value = '';
+                } else {
+                    alert(data.error || "An error occurred.");
+                }
+            })
+            .catch(err => {
+                alert("Network error. Please try again.");
+            });
+        }
+    </script>
+    {% if user %}
+    <script>
+    (function() {
+        const trigger = document.getElementById('location-trigger');
+        const dropdown = document.getElementById('location-dropdown');
+        const closeBtn = document.getElementById('location-close-btn');
+        const detectBtn = document.getElementById('btn-detect-location');
+        const detectStatus = document.getElementById('detecting-status');
+        const locationForm = document.getElementById('location-form');
+        const toast = document.getElementById('location-toast');
+
+        // Toggle dropdown
+        if (trigger) {
+            trigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('open');
+            });
+        }
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                dropdown.classList.remove('open');
+            });
+        }
+        document.addEventListener('click', function(e) {
+            if (dropdown && !dropdown.contains(e.target) && !trigger.contains(e.target)) {
+                dropdown.classList.remove('open');
+            }
+        });
+
+        function showToast(msg, type) {
+            toast.textContent = msg;
+            toast.className = 'location-toast location-toast-' + (type || 'success');
+            toast.style.display = 'block';
+            setTimeout(function() { toast.style.display = 'none'; }, 3000);
+        }
+
+        function fillForm(addr) {
+            document.getElementById('loc-address1').value = addr.address_line1 || '';
+            document.getElementById('loc-city').value = addr.city || '';
+            document.getElementById('loc-state').value = addr.state || '';
+            document.getElementById('loc-postal').value = addr.postal_code || '';
+            document.getElementById('loc-country').value = addr.country || '';
+            document.getElementById('loc-auto-address').value = addr.full_address || '';
+            document.getElementById('loc-lat').value = addr.latitude || '';
+            document.getElementById('loc-lng').value = addr.longitude || '';
+        }
+
+        // Parse BigDataCloud response
+        function parseBigDataCloud(data) {
+            var locality = data.locality || {};
+            var city = locality.name || data.city || '';
+            var state = '';
+            var country = '';
+            var postal = '';
+
+            // Get state from localityInfo
+            if (locality.administrativeDivisionLevel1) {
+                state = locality.administrativeDivisionLevel1.name || '';
+            }
+            if (data.countryName) country = data.countryName;
+            if (locality.postcode) postal = locality.postcode;
+
+            // Build street address from components
+            var street = '';
+            if (data.streetNumber) street = data.streetNumber + ' ';
+            if (data.street) street += data.street;
+            if (!street && data.localityInfo && data.localityInfo.administrative && data.localityInfo.administrative.length > 0) {
+                street = city;
+            }
+
+            return {
+                address_line1: street.trim(),
+                city: city,
+                state: state,
+                postal_code: postal,
+                country: country,
+                full_address: data.plusCode || data.localityInfo?.informative?.[0]?.name || city + ', ' + country,
+                latitude: data.latitude,
+                longitude: data.longitude
+            };
+        }
+
+        // Parse Nominatim response
+        function parseNominatim(data) {
+            var addr = data.address || {};
+            var houseNumber = addr.house_number || '';
+            var road = addr.road || addr.pedestrian || addr.street || '';
+            var suburb = addr.suburb || addr.neighbourhood || addr.quarter || '';
+            var addressLine1 = (houseNumber ? houseNumber + ' ' : '') + road;
+            if (suburb && !addressLine1.includes(suburb)) {
+                addressLine1 += (addressLine1 ? ', ' : '') + suburb;
+            }
+
+            return {
+                address_line1: addressLine1,
+                city: addr.city || addr.town || addr.village || addr.county || addr.municipality || '',
+                state: addr.state || addr.region || addr.province || '',
+                postal_code: addr.postcode || '',
+                country: addr.country || '',
+                full_address: data.display_name || '',
+                latitude: data.lat,
+                longitude: data.lon
+            };
+        }
+
+        // Auto Detect Location — BigDataCloud primary, Nominatim fallback
+        if (detectBtn) {
+            detectBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    showToast('Geolocation is not supported by your browser.', 'error');
+                    return;
+                }
+                detectBtn.disabled = true;
+                detectStatus.style.display = 'block';
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    var accuracy = position.coords.accuracy;
+
+                    // Try BigDataCloud first (more accurate, no API key)
+                    fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' + lat + '&longitude=' + lng + '&localityLanguage=en')
+                    .then(function(res) { return res.json(); })
+                    .then(function(bdcData) {
+                        detectBtn.disabled = false;
+                        detectStatus.style.display = 'none';
+                        var parsed = parseBigDataCloud(bdcData);
+                        fillForm(parsed);
+                        showToast('Location detected (accuracy: ' + Math.round(accuracy) + 'm). Review & save.', 'success');
+                    })
+                    .catch(function() {
+                        // Fallback to Nominatim
+                        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + lat + '&lon=' + lng + '&addressdetails=1', {
+                            headers: { 'Accept-Language': 'en' }
+                        })
+                        .then(function(res) { return res.json(); })
+                        .then(function(nomData) {
+                            detectBtn.disabled = false;
+                            detectStatus.style.display = 'none';
+                            if (nomData.address) {
+                                var parsed = parseNominatim(nomData);
+                                fillForm(parsed);
+                                showToast('Location detected (accuracy: ' + Math.round(accuracy) + 'm). Review & save.', 'success');
+                            } else {
+                                showToast('Could not parse address. Please fill manually.', 'error');
+                            }
+                        })
+                        .catch(function() {
+                            detectBtn.disabled = false;
+                            detectStatus.style.display = 'none';
+                            showToast('Could not detect address. Please fill manually.', 'error');
+                        });
+                    });
+                }, function(error) {
+                    detectBtn.disabled = false;
+                    detectStatus.style.display = 'none';
+                    var msgs = {
+                        1: 'Location permission denied. Please allow location access.',
+                        2: 'Location unavailable. Please try again.',
+                        3: 'Location request timed out. Please try again.'
+                    };
+                    showToast(msgs[error.code] || 'Could not detect location.', 'error');
+                }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            });
+        }
+
+        // Save Location Form
+        if (locationForm) {
+            locationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var saveBtn = document.getElementById('btn-save-location');
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+
+                var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                var payload = {
+                    address_line1: document.getElementById('loc-address1').value.trim(),
+                    address_line2: document.getElementById('loc-address2').value.trim(),
+                    city: document.getElementById('loc-city').value.trim(),
+                    state: document.getElementById('loc-state').value.trim(),
+                    postal_code: document.getElementById('loc-postal').value.trim(),
+                    country: document.getElementById('loc-country').value.trim(),
+                    latitude: parseFloat(document.getElementById('loc-lat').value) || null,
+                    longitude: parseFloat(document.getElementById('loc-lng').value) || null,
+                    auto_detected_address: document.getElementById('loc-auto-address').value.trim()
+                };
+
+                fetch('/save-location/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Address';
+                    if (data.status === 'ok') {
+                        var locText = document.getElementById('location-text');
+                        var parts = [];
+                        if (payload.city) parts.push(payload.city);
+                        else if (payload.address_line1) parts.push(payload.address_line1);
+                        if (parts.length > 0) locText.textContent = parts[0];
+                        showToast('Location saved successfully!', 'success');
+                        setTimeout(function() { dropdown.classList.remove('open'); }, 1500);
+                    } else {
+                        showToast(data.message || 'Error saving location.', 'error');
+                    }
+                })
+                .catch(function() {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Save Address';
+                    showToast('Network error. Please try again.', 'error');
+                });
+            });
+        }
+
+        // Auto-detect on first visit if no location saved yet
+        {% if not user_location %}
+        if (detectBtn && navigator.geolocation) {
+            detectBtn.click();
+        }
+        {% endif %}
+    })();
+    </script>
+    {% endif %}
+</body>
+
+</html>

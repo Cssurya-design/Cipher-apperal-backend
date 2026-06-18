@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title>Cipher Apparel - About</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=6.0">
+</head>
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a href="{% url 'blog' %}">Blog</a></li>
+                <li><a class="active" href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                {% if user %}
+                <li class="nav-location">
+                    <a href="javascript:void(0)" class="nav-location-trigger" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span class="nav-loc-text">{% if user_location %}{{ user_location.city|default:"Location" }}{% else %}Location{% endif %}</span>
+                        <i class="fa-solid fa-chevron-down nav-loc-arrow"></i>
+                    </a>
+                    <div class="nav-loc-dropdown">
+                        <div class="nav-loc-dropdown-inner">
+                            <div class="nav-loc-header">
+                                <h4><i class="fa-solid fa-location-dot"></i> Delivery Location</h4>
+                                <a href="javascript:void(0)" class="nav-loc-close" onclick="this.closest('.nav-loc-dropdown').classList.remove('open')"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                            {% if user_location %}
+                            <div class="nav-loc-saved">
+                                <i class="fa-solid fa-map-pin"></i>
+                                <div>
+                                    <strong>{{ user_location.address_line1 }}</strong>{% if user_location.address_line2 %}, {{ user_location.address_line2 }}{% endif %}
+                                    <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                                    <br>{{ user_location.country }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p style="text-align:center;color:#999;font-size:13px;">No location set</p>
+                            {% endif %}
+                            <a href="{% url 'index' %}" class="btn-detect-location" style="text-align:center;text-decoration:none;display:block;">
+                                <i class="fa-solid fa-pen"></i> Manage on Homepage
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                {% if user %}
+                <li class="nav-profile-li">
+                    <a href="{% url 'dashboard' %}" class="nav-profile-link">
+                        {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" class="nav-avatar" alt="">
+                        {% else %}
+                        <i class="fa-solid fa-circle-user nav-avatar-icon"></i>
+                        {% endif %}
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-auth-links"><a href="{% url 'login' %}" class="btn-login">Login</a></li>
+                <li class="nav-auth-links"><a href="{% url 'signup' %}" class="btn-signup">Sign Up</a></li>
+                {% endif %}
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="page-header" class="about-header">
+        <h2>#About<span>Us</span></h2>
+        <p>Read all case studies about our products!</p>
+    </section>
+
+    <section id="about-head" class="section-p1">
+        <img src="{% static 'store/images/about/a6.jpg' %}" alt="">
+        <div>
+            <h4>Who We Are?</h4>
+            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nulla corrupti deserunt, dolor sed hic sint repellat excepturi iure mollitia accusantium corporis quisquam. Reiciendis, voluptates voluptatibus. Eveniet doloremque ducimus error aliquid commodi dolores molestias totam.</p>
+            <abbr title="">Create stunning images with as much or as little control as you like thanks to a choice of Basic and Creative modes.</abbr>
+            <br><br>
+            <marquee bgcolor="#ccc" loop="-1" scrollamount="5" width="100%">Create stunning images with as much or as little control as you like thanks to a choice of Basic and Creative modes.</marquee>
+    </section>
+
+    <section id="about-app" class="section-p1">
+        <h1>Download Our <a href="#">App</a></h1>
+        <div class="video">
+            <video autoplay muted loop src="{% static 'store/images/about/1.mp4' %}"></video>
+        </div>
+    </section>
+
+    <section id="feature" class="section-p1">
+        <div class="fe-box"><img src="{% static 'store/images/features/f1.png' %}" alt=""><h6>Free Shipping</h6></div>
+        <div class="fe-box"><img src="{% static 'store/images/features/f2.png' %}" alt=""><h6>Online Order</h6></div>
+        <div class="fe-box"><img src="{% static 'store/images/features/f3.png' %}" alt=""><h6>Save Money</h6></div>
+        <div class="fe-box"><img src="{% static 'store/images/features/f4.png' %}" alt=""><h6>Promotions</h6></div>
+        <div class="fe-box"><img src="{% static 'store/images/features/f5.png' %}" alt=""><h6>Happy Sell</h6></div>
+        <div class="fe-box"><img src="{% static 'store/images/features/f6.png' %}" alt=""><h6>24/7 Support</h6></div>
+    </section>
+
+    <section id="newsletter" class="section-p1 section-m1">
+        <div class="newstext">
+            <h4>Sign up Newsletters</h4>
+            <p>Get E-mail updates about our latest shop and <span>special offers.</span></p>
+        </div>
+        <div class="form">
+            <input type="text" placeholder="Your email address">
+            <button class="normal">Sign Up</button>
+        </div>
+    </section>
+
+    <footer class="section-p1">
+        <div class="col">
+            <img class="logo" src="{% static 'store/images/Logo1.png' %}" alt="">
+            <h4>Contact</h4>
+            <p><strong>Address: </strong> 275, Sampath St, Rathinapuri, Tatabad, Coimbatore</p>
+            <p><strong>Phone: </strong> (+91) 2254 3658 /(+91) 01 2345 6789</p>
+            <p><strong>Hours: </strong> 10:00 - 18:00, Mon - Sat</p>
+            <div class="follow">
+                <h4>Follow Us</h4>
+                <div class="icon">
+                    <i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i><i class="fab fa-instagram"></i><i class="fab fa-pinterest-p"></i><i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <h4>About</h4>
+            <a href="#">About Us</a><a href="#">Delivery Information</a><a href="#">Privacy Policy</a><a href="#">Terms &amp; Conditions</a><a href="#">Contact Us</a>
+        </div>
+        <div class="col">
+            <h4>My Account</h4>
+            <a href="#">Sign In</a><a href="#">View Cart</a><a href="#">My Wishlist</a><a href="#">Track My Order</a><a href="#">Help</a>
+        </div>
+        <div class="col install">
+            <h4>Install App</h4>
+            <p>From App Store or Google Play Store</p>
+            <div class="row">
+                <img src="{% static 'store/images/pay/app.jpg' %}" alt="">
+                <img src="{% static 'store/images/pay/play.jpg' %}" alt="">
+            </div>
+            <p>Secured Payment Gateways</p>
+            <img src="{% static 'store/images/pay/pay.png' %}" alt="">
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026, Cipher Apparel - All copyright reserved</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+</body>
+</html>

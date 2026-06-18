@@ -1,0 +1,331 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'store/favicon.ico' %}" type="image/x-icon">
+    <title>Cipher Apparel - Blog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'store/style.css' %}?v=6.0">
+    <style>
+        #pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 30px 0;
+            flex-wrap: wrap;
+        }
+        #pagination a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 12px;
+            background-color: #f1f1f1;
+            color: #333;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        #pagination a:hover {
+            background-color: #088178;
+            color: #fff;
+            border-color: #088178;
+        }
+        #pagination a i {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <section id="header">
+        <a href="{% url 'index' %}"><img src="{% static 'store/images/Logo1.png' %}" class="logo"></a>
+        <div>
+            <ul id="navbar">
+                <li><a href="{% url 'index' %}">Home</a></li>
+                <li><a href="{% url 'shop' %}">Shop</a></li>
+                <li><a class="active" href="{% url 'blog' %}">Blog</a></li>
+                <li><a href="{% url 'about' %}">About</a></li>
+                <li><a href="{% url 'contact' %}">Contact</a></li>
+                {% if user %}
+                <li class="nav-location">
+                    <a href="javascript:void(0)" class="nav-location-trigger" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span class="nav-loc-text">{% if user_location %}{{ user_location.city|default:"Location" }}{% else %}Location{% endif %}</span>
+                        <i class="fa-solid fa-chevron-down nav-loc-arrow"></i>
+                    </a>
+                    <div class="nav-loc-dropdown">
+                        <div class="nav-loc-dropdown-inner">
+                            <div class="nav-loc-header">
+                                <h4><i class="fa-solid fa-location-dot"></i> Delivery Location</h4>
+                                <a href="javascript:void(0)" class="nav-loc-close" onclick="this.closest('.nav-loc-dropdown').classList.remove('open')"><i class="fa-solid fa-xmark"></i></a>
+                            </div>
+                            {% if user_location %}
+                            <div class="nav-loc-saved">
+                                <i class="fa-solid fa-map-pin"></i>
+                                <div>
+                                    <strong>{{ user_location.address_line1 }}</strong>{% if user_location.address_line2 %}, {{ user_location.address_line2 }}{% endif %}
+                                    <br>{{ user_location.city }}{% if user_location.state %}, {{ user_location.state }}{% endif %} {{ user_location.postal_code }}
+                                    <br>{{ user_location.country }}
+                                </div>
+                            </div>
+                            {% else %}
+                            <p style="text-align:center;color:#999;font-size:13px;">No location set</p>
+                            {% endif %}
+                            <a href="{% url 'index' %}" class="btn-detect-location" style="text-align:center;text-decoration:none;display:block;">
+                                <i class="fa-solid fa-pen"></i> Manage on Homepage
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% endif %}
+                <li id="lg-wishlist"><a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a></li>
+                <li id="lg-bag"><a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a></li>
+                {% if user %}
+                <li class="nav-profile-li">
+                    <a href="{% url 'dashboard' %}" class="nav-profile-link">
+                        {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" class="nav-avatar" alt="">
+                        {% else %}
+                        <i class="fa-solid fa-circle-user nav-avatar-icon"></i>
+                        {% endif %}
+                    </a>
+                </li>
+                {% else %}
+                <li class="nav-auth-links"><a href="{% url 'login' %}" class="btn-login">Login</a></li>
+                <li class="nav-auth-links"><a href="{% url 'signup' %}" class="btn-signup">Sign Up</a></li>
+                {% endif %}
+                <a href="#" id="close"><i class="fa-solid fa-xmark"></i></a>
+            </ul>
+        </div>
+        <div id="mobile">
+            <a href="{% url 'wishlist' %}"><i class="fa-regular fa-heart"></i></a>
+            <a href="{% url 'cart' %}"><i class="fa-solid fa-cart-shopping"></i></a>
+            <i id="bar" class="fas fa-outdent"></i>
+        </div>
+    </section>
+
+    <section id="page-header" class="blog-header">
+        <h2>#Read<span>More</span></h2>
+        <p>Read all case studies about our products!</p>
+    </section>
+
+    <section id="blog">
+        <!-- Blog Post 1 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b1.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>The Cotton-Jersey Zip-Up Hoodie</h4>
+                <p>Kickstarter man braid godard coloring book. Raclette waistcoat selfies yr wolf chartreuse hexagon irony. godard...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>13/01</h1>
+        </div>
+        <!-- Blog Post 2 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b2.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>How to Style a Quiff</h4>
+                <p>Kickstarter man braid godard coloring book. Raclette waistcoat selfies yr wolf chartreuse hexagon irony. godard...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>13/01</h1>
+        </div>
+        <!-- Blog Post 3 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b3.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Must-Have Skater Girl Items</h4>
+                <p>Kickstarter man braid godard coloring book. Raclette waistcoat selfies yr wolf chartreuse hexagon irony. godard...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>13/01</h1>
+        </div>
+        <!-- Blog Post 4 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b4.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Runway-Inspired Trends</h4>
+                <p>Kickstarter man braid godard coloring book. Raclette waistcoat selfies yr wolf chartreuse hexagon irony. godard...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>13/01</h1>
+        </div>
+        <!-- Blog Post 5 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b6.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>AW20 Menswear Trends</h4>
+                <p>Kickstarter man braid godard coloring book. Raclette waistcoat selfies yr wolf chartreuse hexagon irony. godard...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>13/01</h1>
+        </div>
+        <!-- Blog Post 6 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b5.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Top 10 Casual Outfits for Spring</h4>
+                <p>Discover the best casual wear for the spring season. From lightweight jackets to trendy sneakers, this guide covers all essentials...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>20/02</h1>
+        </div>
+        <!-- Blog Post 7 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b7.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Street Style Essentials for Men</h4>
+                <p>Street style has evolved into a global fashion movement. Learn how to incorporate bold prints, layered looks, and statement accessories...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>05/03</h1>
+        </div>
+        <!-- Blog Post 8 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b1.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>How to Build a Capsule Wardrobe</h4>
+                <p>A capsule wardrobe is all about quality over quantity. Learn how to curate a versatile collection that works for every occasion...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>12/03</h1>
+        </div>
+        <!-- Blog Post 9 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b3.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Summer Fashion Lookbook 2026</h4>
+                <p>Get inspired with our summer 2026 lookbook featuring breezy linens, vibrant prints, and the hottest accessories of the season...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>15/03</h1>
+        </div>
+        <!-- Blog Post 10 -->
+        <div class="blog-box" data-blog-item>
+            <div class="blog-img"><img src="{% static 'store/images/blog/b4.jpg' %}" alt=""></div>
+            <div class="blog-details">
+                <h4>Sustainable Fashion: A Complete Guide</h4>
+                <p>Sustainable fashion is more than a trend — it's a movement. Discover eco-friendly brands, upcycling tips, and how to shop responsibly...</p>
+                <a href="#">CONTINUE READING</a>
+            </div>
+            <h1>18/03</h1>
+        </div>
+    </section>
+
+    <section id="pagination" class="section-p1">
+        <!-- Pagination will be generated by JavaScript -->
+    </section>
+
+    <section id="newsletter" class="section-p1 section-m1">
+        <div class="newstext">
+            <h4>Sign up Newsletters</h4>
+            <p>Get E-mail updates about our latest shop and <span>special offers.</span></p>
+        </div>
+        <div class="form">
+            <input type="text" placeholder="Your email address">
+            <button class="normal">Sign Up</button>
+        </div>
+    </section>
+
+    <footer class="section-p1">
+        <div class="col">
+            <img class="logo" src="{% static 'store/images/Logo1.png' %}" alt="">
+            <h4>Contact</h4>
+            <p><strong>Address: </strong> 275, Sampath St, Rathinapuri, Tatabad, Coimbatore</p>
+            <p><strong>Phone: </strong> (+91) 2254 3658 /(+91) 01 2345 6789</p>
+            <p><strong>Hours: </strong> 10:00 - 18:00, Mon - Sat</p>
+            <div class="follow">
+                <h4>Follow Us</h4>
+                <div class="icon">
+                    <i class="fab fa-facebook-f"></i><i class="fab fa-twitter"></i><i class="fab fa-instagram"></i><i class="fab fa-pinterest-p"></i><i class="fab fa-youtube"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <h4>About</h4>
+            <a href="#">About Us</a><a href="#">Delivery Information</a><a href="#">Privacy Policy</a><a href="#">Terms &amp; Conditions</a><a href="#">Contact Us</a>
+        </div>
+        <div class="col">
+            <h4>My Account</h4>
+            <a href="#">Sign In</a><a href="#">View Cart</a><a href="#">My Wishlist</a><a href="#">Track My Order</a><a href="#">Help</a>
+        </div>
+        <div class="col install">
+            <h4>Install App</h4>
+            <p>From App Store or Google Play Store</p>
+            <div class="row">
+                <img src="{% static 'store/images/pay/app.jpg' %}" alt="">
+                <img src="{% static 'store/images/pay/play.jpg' %}" alt="">
+            </div>
+            <p>Secured Payment Gateways</p>
+            <img src="{% static 'store/images/pay/pay.png' %}" alt="">
+        </div>
+        <div class="copyright">
+            <p>&copy; 2026, Cipher Apparel - All copyright reserved</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'store/script.js' %}?v=6.0"></script>
+    <script>
+        // Blog Pagination
+        (function() {
+            const POSTS_PER_PAGE = 5;
+            const allPosts = document.querySelectorAll('[data-blog-item]');
+            const totalPages = Math.ceil(allPosts.length / POSTS_PER_PAGE);
+            let currentPage = 1;
+
+            function showPage(page) {
+                currentPage = page;
+                allPosts.forEach((post, i) => {
+                    const start = (page - 1) * POSTS_PER_PAGE;
+                    const end = start + POSTS_PER_PAGE;
+                    post.style.display = (i >= start && i < end) ? '' : 'none';
+                });
+                renderPagination();
+                window.scrollTo({ top: document.getElementById('blog').offsetTop - 100, behavior: 'smooth' });
+            }
+
+            function renderPagination() {
+                const container = document.getElementById('pagination');
+                container.innerHTML = '';
+
+                if (currentPage > 1) {
+                    const prev = document.createElement('a');
+                    prev.href = '#';
+                    prev.innerHTML = '<i class="fa-solid fa-arrow-left-long"></i>';
+                    prev.addEventListener('click', (e) => { e.preventDefault(); showPage(currentPage - 1); });
+                    container.appendChild(prev);
+                }
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.textContent = i;
+                    if (i === currentPage) {
+                        a.style.backgroundColor = '#088178';
+                        a.style.color = '#fff';
+                    }
+                    a.addEventListener('click', (e) => { e.preventDefault(); showPage(i); });
+                    container.appendChild(a);
+                }
+
+                if (currentPage < totalPages) {
+                    const next = document.createElement('a');
+                    next.href = '#';
+                    next.innerHTML = '<i class="fa-solid fa-arrow-right-long"></i>';
+                    next.addEventListener('click', (e) => { e.preventDefault(); showPage(currentPage + 1); });
+                    container.appendChild(next);
+                }
+            }
+
+            showPage(1);
+        })();
+    </script>
+</body>
+</html>
