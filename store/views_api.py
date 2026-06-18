@@ -1,7 +1,136 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Product
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import get_user_model
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import Product, Contact
+
+User = get_user_model()
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = {
+            'id': self.user.id,
+            'email': self.user.email,
+            'name': f"{self.user.first_name} {self.user.last_name}".strip(),
+        }
+        return data
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+@csrf_exempt
+def api_signup(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+            first_name = data.get('first_name', '')
+            last_name = data.get('last_name', '')
+            
+            if User.objects.filter(email=email).exists():
+                return JsonResponse({"error": "Email already exists"}, status=400)
+                
+            user = User.objects.create_user(
+                username=email,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name
+            )
+            return JsonResponse({"status": "success", "message": "User created successfully"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_user_profile(request):
+    user = request.user
+    if request.method == 'GET':
+        return JsonResponse({
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "phone": getattr(user, 'phone_number', ''),
+        })
+    elif request.method == 'POST':
+        data = json.loads(request.body)
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        if hasattr(user, 'phone_number'):
+            user.phone_number = data.get('phone', user.phone_number)
+        user.save()
+        return JsonResponse({"status": "success"})
+
+@csrf_exempt
+def api_contact(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            email = data.get('email')
+            subject = data.get('subject')
+            message = data.get('message')
+            
+            Contact.objects.create(
+                full_name=name,
+                email=email,
+                subject=subject,
+                message=message
+            )
+            
+            # Send Email
+            send_mail(
+                f"Cipher Apparel - New message from {name}: {subject}",
+                f"You have received a new message.\n\nName: {name}\nEmail: {email}\n\nMessage:\n{message}",
+                settings.DEFAULT_FROM_EMAIL,
+                [settings.DEFAULT_FROM_EMAIL],
+                fail_silently=True,
+            )
+            return JsonResponse({"status": "success", "message": "Message sent!"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_wishlist(request):
+    user = request.user
+    if request.method == 'GET':
+        from .models import Wishlist
+        wishlist = Wishlist.objects.filter(user=user)
+        data = []
+        for w in wishlist:
+            data.append({
+                "id": w.product.id,
+                "name": w.product.name,
+                "price": str(w.product.price),
+                "image": w.product.image,
+            })
+        return JsonResponse({"wishlist": data})
+        
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+            from .models import Wishlist, Product
+            product = Product.objects.get(id=product_id)
+            
+            wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product)
+            if not created:
+                wishlist_item.delete()
+                return JsonResponse({"status": "removed"})
+            return JsonResponse({"status": "added"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
 
 def api_get_products(request):
     category = request.GET.get('category')
@@ -34,11 +163,23 @@ def api_get_featured(request):
 @csrf_exempt
 def api_save_order(request):
     if request.method == "POST":
-        # Simplified order saving for demonstration without auth
         try:
             data = json.loads(request.body)
-            # In a real API with auth, we would associate this with request.user
-            return JsonResponse({"status": "success", "message": "Order placed via API!"})
+            items = data.get('items', [])
+            email = data.get('email', '')
+            
+            from .models import Order
+            
+            # Simplified save
+            for item in items:
+                Order.objects.create(
+                    user=request.user if request.user.is_authenticated else None, # if auth passed, otherwise None (need to allow null user in Order or create guest)
+                    product_name=item['name'],
+                    price=item['price'],
+                    quantity=item['quantity']
+                )
+            
+            return JsonResponse({"status": "success", "message": "Order placed successfully!"})
         except Exception as e:
-            return JsonResponse({"status": "error", "message": str(e)}, status=400)
-    return JsonResponse({"status": "method not allowed"}, status=405)
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
