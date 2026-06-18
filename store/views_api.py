@@ -337,7 +337,6 @@ def api_google_login(request):
                 email=email,
                 defaults={
                     'name': name,
-                    'username': email,
                 }
             )
             
