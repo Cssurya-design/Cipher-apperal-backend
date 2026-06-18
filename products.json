@@ -1,970 +1,973 @@
-[
 {
-  "model": "store.product",
-  "pk": 1,
-  "fields": {
-    "name": "Colorful Abstract Print Shirt",
-    "price": "78.00",
-    "image": "f1.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 2,
-  "fields": {
-    "name": "Green Tropical Leaf Shirt",
-    "price": "78.00",
-    "image": "f2.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 3,
-  "fields": {
-    "name": "Red Vintage Floral Shirt",
-    "price": "78.00",
-    "image": "f3.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 4,
-  "fields": {
-    "name": "White Blossom Print Shirt",
-    "price": "78.00",
-    "image": "f4.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 5,
-  "fields": {
-    "name": "Navy Blue Floral Shirt",
-    "price": "78.00",
-    "image": "f5.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 6,
-  "fields": {
-    "name": "Color Block Corduroy Shirt",
-    "price": "78.00",
-    "image": "f6.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 7,
-  "fields": {
-    "name": "Beige Graphic Trousers",
-    "price": "78.00",
-    "image": "f7.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 8,
-  "fields": {
-    "name": "Purple Patterned Blouse",
-    "price": "78.00",
-    "image": "f8.jpg",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 9,
-  "fields": {
-    "name": "Bright Yellow Summer Polo",
-    "price": "78.00",
-    "image": "f9.png",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 10,
-  "fields": {
-    "name": "Pastel Pink Casual Shirt",
-    "price": "78.00",
-    "image": "f10.png",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 11,
-  "fields": {
-    "name": "Dark Green Linen Shirt",
-    "price": "78.00",
-    "image": "f11.png",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 12,
-  "fields": {
-    "name": "Black Graphic T-Shirt",
-    "price": "78.00",
-    "image": "f12.png",
-    "category": "featured",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 13,
-  "fields": {
-    "name": "Light Blue Casual Shirt",
-    "price": "78.00",
-    "image": "n1.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 14,
-  "fields": {
-    "name": "Navy Pinstripe Formal Shirt",
-    "price": "78.00",
-    "image": "n2.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 15,
-  "fields": {
-    "name": "Classic White Cotton Shirt",
-    "price": "78.00",
-    "image": "n3.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 16,
-  "fields": {
-    "name": "Desert Camo Short Sleeve Shirt",
-    "price": "78.00",
-    "image": "n4.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 17,
-  "fields": {
-    "name": "Denim Blue Long Sleeve Shirt",
-    "price": "78.00",
-    "image": "n5.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 18,
-  "fields": {
-    "name": "Grey Casual Shorts",
-    "price": "78.00",
-    "image": "n6.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 19,
-  "fields": {
-    "name": "Brown Cargo Shirt",
-    "price": "78.00",
-    "image": "n7.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 20,
-  "fields": {
-    "name": "Dark Grey Basic Shirt",
-    "price": "78.00",
-    "image": "n8.jpg",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 21,
-  "fields": {
-    "name": "Light Khaki Chino Shorts",
-    "price": "78.00",
-    "image": "n9.png",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 22,
-  "fields": {
-    "name": "Red Plaid Flannel Shirt",
-    "price": "78.00",
-    "image": "n10.png",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 23,
-  "fields": {
-    "name": "Khaki Chino Shorts Variant",
-    "price": "78.00",
-    "image": "n11.png",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 24,
-  "fields": {
-    "name": "Red Flannel Shirt Variant",
-    "price": "78.00",
-    "image": "n12.png",
-    "category": "new_arrival",
-    "description": null
-  }
-},
-{
-  "model": "store.product",
-  "pk": 25,
-  "fields": {
-    "name": "Colorful Abstract Print Shirt Variant",
-    "price": "45.00",
-    "image": "f1.jpg",
-    "category": "new_arrival",
-    "description": "A fantastic new addition to our store: Neon Summer Activewear Top."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 26,
-  "fields": {
-    "name": "Green Tropical Leaf Shirt Variant",
-    "price": "120.00",
-    "image": "f2.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Emerald Evening Gown."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 27,
-  "fields": {
-    "name": "Red Vintage Floral Shirt Variant",
-    "price": "95.00",
-    "image": "f3.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Maroon Velvet Blazer."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 28,
-  "fields": {
-    "name": "White Blossom Print Shirt Variant",
-    "price": "110.00",
-    "image": "f4.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Ivory Cashmere Sweater."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 29,
-  "fields": {
-    "name": "Navy Blue Floral Shirt Variant",
-    "price": "55.00",
-    "image": "f5.jpg",
-    "category": "new_arrival",
-    "description": "A fantastic new addition to our store: Sapphire Blue Polo."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 30,
-  "fields": {
-    "name": "Color Block Corduroy Shirt Variant",
-    "price": "85.00",
-    "image": "f6.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Vintage Brown Jacket."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 31,
-  "fields": {
-    "name": "Beige Cargo Trousers Variant",
-    "price": "65.00",
-    "image": "f7.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Olive Green Cargo Pants."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 32,
-  "fields": {
-    "name": "Purple Patterned Blouse Variant",
-    "price": "70.00",
-    "image": "f8.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Lavender Silk Blouse."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 33,
-  "fields": {
-    "name": "Bright Yellow Summer Polo Variant",
-    "price": "35.00",
-    "image": "f9.png",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Golden Honey T-Shirt."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 34,
-  "fields": {
-    "name": "Pastel Pink Casual Shirt Variant",
-    "price": "88.00",
-    "image": "f10.png",
-    "category": "new_arrival",
-    "description": "A fantastic new addition to our store: Rose Pink Casual Dress."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 35,
-  "fields": {
-    "name": "Dark Green Linen Shirt Variant",
-    "price": "60.00",
-    "image": "f11.png",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Forest Green Hoodie."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 36,
-  "fields": {
-    "name": "Black Graphic T-Shirt Variant",
-    "price": "75.00",
-    "image": "f12.png",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Midnight Black Denim."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 37,
-  "fields": {
-    "name": "Light Blue Casual Shirt Variant",
-    "price": "50.00",
-    "image": "n1.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Sky Blue Oxford Shirt."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 38,
-  "fields": {
-    "name": "Navy Pinstripe Formal Shirt Variant",
-    "price": "190.00",
-    "image": "n2.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Navy Blue Business Suit."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 39,
-  "fields": {
-    "name": "Classic White Cotton Shirt Variant",
-    "price": "25.00",
-    "image": "n3.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Pearl White Tank Top."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 40,
-  "fields": {
-    "name": "Desert Camo Short Sleeve Shirt Variant",
-    "price": "140.00",
-    "image": "n4.jpg",
-    "category": "new_arrival",
-    "description": "A fantastic new addition to our store: Desert Sand Trench Coat."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 41,
-  "fields": {
-    "name": "Denim Blue Long Sleeve Shirt Variant",
-    "price": "90.00",
-    "image": "n5.jpg",
-    "category": "featured",
-    "description": "A fantastic new addition to our store: Indigo Denim Jacket."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 42,
-  "fields": {
-    "name": "Grey Casual Shorts Variant",
-    "price": "48.00",
-    "image": "n6.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Charcoal Grey Joggers."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 43,
-  "fields": {
-    "name": "Brown Cargo Shirt Variant",
-    "price": "160.00",
-    "image": "n7.jpg",
-    "category": "new_arrival",
-    "description": "A fantastic new addition to our store: Earth Brown Overcoat."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 44,
-  "fields": {
-    "name": "Dark Grey Basic Shirt Variant",
-    "price": "30.00",
-    "image": "n8.jpg",
-    "category": "regular",
-    "description": "A fantastic new addition to our store: Slate Grey Workout Tee."
-  }
-},
-{
-  "model": "store.product",
-  "pk": 45,
-  "fields": {
-    "name": "Maroon Tribal Pattern Shirt",
-    "price": "121.97",
-    "image": "4ilpw_512.avif",
-    "category": "featured",
-    "description": "Check out our new Signature Heather Sneakers, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 46,
-  "fields": {
-    "name": "White Artistic Pattern Shirt",
-    "price": "138.18",
-    "image": "515417seSiL._SX569_.jpg",
-    "category": "new_arrival",
-    "description": "Check out our new Cozy Emerald Jeans, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 47,
-  "fields": {
-    "name": "Green Dragon Graphics Shirt",
-    "price": "58.95",
-    "image": "ayqfo_512.avif",
-    "category": "featured",
-    "description": "Check out our new Luxurious Black Tee, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 48,
-  "fields": {
-    "name": "Red & Gold Pattern Shirt",
-    "price": "118.87",
-    "image": "csmr1_512.avif",
-    "category": "new_arrival",
-    "description": "Check out our new Premium White Jacket, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 49,
-  "fields": {
-    "name": "Casual Graphic Top",
-    "price": "134.66",
-    "image": "fztha_512.avif",
-    "category": "regular",
-    "description": "Check out our new Signature Heather Hoodie, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 50,
-  "fields": {
-    "name": "Casual Long Sleeve Top",
-    "price": "121.83",
-    "image": "mzofq_512.avif",
-    "category": "regular",
-    "description": "Check out our new Elegant Heather Blazer, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 51,
-  "fields": {
-    "name": "Green Graphic Button-Up Shirt",
-    "price": "57.71",
-    "image": "sn3dz_512.avif",
-    "category": "new_arrival",
-    "description": "Check out our new Athletic Crimson Tee, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 52,
-  "fields": {
-    "name": "White & Red Graphic Long Sleeve",
-    "price": "113.95",
-    "image": "ufdpg_512.avif",
-    "category": "featured",
-    "description": "Check out our new Luxurious Beige Activewear, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 53,
-  "fields": {
-    "name": "Casual Trousers",
-    "price": "47.52",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.46 PM.jpeg",
-    "category": "regular",
-    "description": "Check out our new Modern Heather Jeans, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 54,
-  "fields": {
-    "name": "Tan Wide-Leg Trousers",
-    "price": "122.89",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.47 PM.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Signature Beige Cardigan, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 55,
-  "fields": {
-    "name": "Grey Pleated Trousers",
-    "price": "23.00",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.48 PM.jpeg",
-    "category": "featured",
-    "description": "Check out our new Chic Emerald Polo, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 56,
-  "fields": {
-    "name": "Maroon Classic Trousers",
-    "price": "110.12",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.49 PM.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Luxurious Burgundy Blazer, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 57,
-  "fields": {
-    "name": "White Classic Slacks",
-    "price": "35.48",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.50 PM.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Minimalist White Summer Dress, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 58,
-  "fields": {
-    "name": "Tan Classic Trousers",
-    "price": "33.07",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.54 PM.jpeg1.jpeg",
-    "category": "featured",
-    "description": "Check out our new Elegant Navy Activewear, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 59,
-  "fields": {
-    "name": "Olive Green Trousers",
-    "price": "62.00",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg2.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Modern Slate Chinos, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 60,
-  "fields": {
-    "name": "Everyday Chinos",
-    "price": "90.73",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg3.jpeg",
-    "category": "regular",
-    "description": "Check out our new Essential Slate Polo, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 61,
-  "fields": {
-    "name": "Olive Cargo Pants",
-    "price": "63.14",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg4.jpeg",
-    "category": "featured",
-    "description": "Check out our new Premium Beige Jacket, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 62,
-  "fields": {
-    "name": "Black Straight Trousers",
-    "price": "145.24",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg5.jpeg",
-    "category": "featured",
-    "description": "Check out our new Cozy Indigo Tee, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 63,
-  "fields": {
-    "name": "Dark Grey Trousers",
-    "price": "143.86",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg6.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Casual Navy Overcoat, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 64,
-  "fields": {
-    "name": "Grey Urban Cargo Pants",
-    "price": "49.67",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg7.jpeg",
-    "category": "featured",
-    "description": "Check out our new Luxurious Indigo Blazer, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 65,
-  "fields": {
-    "name": "Grey Patterned Trousers",
-    "price": "85.67",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg10.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Premium Black Hoodie, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 66,
-  "fields": {
-    "name": "Dark Grey Wide Leg Pants",
-    "price": "110.88",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg8.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Casual Emerald Jacket, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 67,
-  "fields": {
-    "name": "Brown Loose Trousers",
-    "price": "132.57",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg9.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Luxurious Ivory Blazer, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 68,
-  "fields": {
-    "name": "Brown Casual Trousers",
-    "price": "83.46",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg11.jpeg",
-    "category": "regular",
-    "description": "Check out our new Cozy Mustard Overcoat, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 69,
-  "fields": {
-    "name": "Tan Combat Cargo Pants",
-    "price": "110.32",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg12.jpeg",
-    "category": "featured",
-    "description": "Check out our new Athletic Navy Activewear, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 70,
-  "fields": {
-    "name": "Grey Cargo Pants",
-    "price": "95.06",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg13.jpeg",
-    "category": "regular",
-    "description": "Check out our new Trendsetting Slate Overcoat, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 71,
-  "fields": {
-    "name": "Olive Oversized Cargo Pants",
-    "price": "79.09",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg14.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Signature White Polo, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 72,
-  "fields": {
-    "name": "Black Baggy Trousers",
-    "price": "56.21",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg15.jpeg",
-    "category": "regular",
-    "description": "Check out our new Elegant Ivory Chinos, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 73,
-  "fields": {
-    "name": "Black Baggy Cargo Pants",
-    "price": "83.66",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg16.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Casual Heather Activewear, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 74,
-  "fields": {
-    "name": "Grey Vintage Denim",
-    "price": "98.04",
-    "image": "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg17.jpeg",
-    "category": "regular",
-    "description": "Check out our new Casual Heather Chinos, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 75,
-  "fields": {
-    "name": "Black Skater Jeans",
-    "price": "108.31",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg",
-    "category": "regular",
-    "description": "Check out our new Minimalist Charcoal Sweater, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 76,
-  "fields": {
-    "name": "Grey Wide Leg Jeans",
-    "price": "38.73",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg16.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Modern Burgundy Sweater, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 77,
-  "fields": {
-    "name": "Grey Straight Wash Jeans",
-    "price": "149.84",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg17.jpeg",
-    "category": "featured",
-    "description": "Check out our new Luxurious Mustard Sweater, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 78,
-  "fields": {
-    "name": "Charcoal Loose Jeans",
-    "price": "65.59",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg18.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Signature Heather Jacket, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 79,
-  "fields": {
-    "name": "Light Blue Baggy Jeans",
-    "price": "48.43",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg19.jpeg",
-    "category": "featured",
-    "description": "Check out our new Signature Crimson Summer Dress, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 80,
-  "fields": {
-    "name": "Blue Loose Fit Jeans",
-    "price": "125.05",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg20.jpeg",
-    "category": "regular",
-    "description": "Check out our new Comfort Burgundy Overcoat, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 81,
-  "fields": {
-    "name": "White Straight Jeans",
-    "price": "101.70",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Classic Burgundy Slacks, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 82,
-  "fields": {
-    "name": "Black Classic Chinos",
-    "price": "74.99",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg21.jpeg",
-    "category": "regular",
-    "description": "Check out our new Classic Crimson Sneakers, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 83,
-  "fields": {
-    "name": "Light Blue Wide Leg Jeans",
-    "price": "114.81",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg23.jpeg",
-    "category": "featured",
-    "description": "Check out our new Minimalist Ivory Sweater, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 84,
-  "fields": {
-    "name": "Everyday Straight Jeans",
-    "price": "69.45",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.03 PM.jpeg",
-    "category": "regular",
-    "description": "Check out our new Vintage Burgundy Windbreaker, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 85,
-  "fields": {
-    "name": "Black Formal Trousers",
-    "price": "27.56",
-    "image": "WhatsApp Image 2026-03-18 at 3.20.03 PM.jpeg24.jpeg",
-    "category": "new_arrival",
-    "description": "Check out our new Athletic Emerald Tee, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 86,
-  "fields": {
-    "name": "Orange Patterned Shirt",
-    "price": "49.53",
-    "image": "wlpyh_512.avif",
-    "category": "new_arrival",
-    "description": "Check out our new Cozy Navy Tee, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 87,
-  "fields": {
-    "name": "Blue Multi-Stripe Shirt",
-    "price": "115.71",
-    "image": "yd0sx_512.avif",
-    "category": "new_arrival",
-    "description": "Check out our new Chic White Jeans, offering incredible style and value!"
-  }
-},
-{
-  "model": "store.product",
-  "pk": 88,
-  "fields": {
-    "name": "White Portrait T-Shirt",
-    "price": "101.32",
-    "image": "z3z5q_512.avif",
-    "category": "featured",
-    "description": "Check out our new Comfort Black Slacks, offering incredible style and value!"
-  }
+    "value":  [
+                  {
+                      "model":  "store.product",
+                      "pk":  1,
+                      "fields":  {
+                                     "name":  "Colorful Abstract Print Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "f1.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  2,
+                      "fields":  {
+                                     "name":  "Green Tropical Leaf Shirt",
+                                     "price":  "599.00",
+                                     "image":  "f2.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  3,
+                      "fields":  {
+                                     "name":  "Red Vintage Floral Shirt",
+                                     "price":  "799.00",
+                                     "image":  "f3.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  4,
+                      "fields":  {
+                                     "name":  "White Blossom Print Shirt",
+                                     "price":  "599.00",
+                                     "image":  "f4.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  5,
+                      "fields":  {
+                                     "name":  "Navy Blue Floral Shirt",
+                                     "price":  "799.00",
+                                     "image":  "f5.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  6,
+                      "fields":  {
+                                     "name":  "Color Block Corduroy Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "f6.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  7,
+                      "fields":  {
+                                     "name":  "Beige Graphic Trousers",
+                                     "price":  "499.00",
+                                     "image":  "f7.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  8,
+                      "fields":  {
+                                     "name":  "Purple Patterned Blouse",
+                                     "price":  "1999.00",
+                                     "image":  "f8.jpg",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  9,
+                      "fields":  {
+                                     "name":  "Bright Yellow Summer Polo",
+                                     "price":  "699.00",
+                                     "image":  "f9.png",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  10,
+                      "fields":  {
+                                     "name":  "Pastel Pink Casual Shirt",
+                                     "price":  "599.00",
+                                     "image":  "f10.png",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  11,
+                      "fields":  {
+                                     "name":  "Dark Green Linen Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "f11.png",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  12,
+                      "fields":  {
+                                     "name":  "Black Graphic T-Shirt",
+                                     "price":  "999.00",
+                                     "image":  "f12.png",
+                                     "category":  "featured",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  13,
+                      "fields":  {
+                                     "name":  "Light Blue Casual Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "n1.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  14,
+                      "fields":  {
+                                     "name":  "Navy Pinstripe Formal Shirt",
+                                     "price":  "1299.00",
+                                     "image":  "n2.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  15,
+                      "fields":  {
+                                     "name":  "Classic White Cotton Shirt",
+                                     "price":  "499.00",
+                                     "image":  "n3.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  16,
+                      "fields":  {
+                                     "name":  "Desert Camo Short Sleeve Shirt",
+                                     "price":  "499.00",
+                                     "image":  "n4.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  17,
+                      "fields":  {
+                                     "name":  "Denim Blue Long Sleeve Shirt",
+                                     "price":  "1999.00",
+                                     "image":  "n5.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  18,
+                      "fields":  {
+                                     "name":  "Grey Casual Shorts",
+                                     "price":  "899.00",
+                                     "image":  "n6.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  19,
+                      "fields":  {
+                                     "name":  "Brown Cargo Shirt",
+                                     "price":  "1999.00",
+                                     "image":  "n7.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  20,
+                      "fields":  {
+                                     "name":  "Dark Grey Basic Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "n8.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  21,
+                      "fields":  {
+                                     "name":  "Light Khaki Chino Shorts",
+                                     "price":  "999.00",
+                                     "image":  "n9.png",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  22,
+                      "fields":  {
+                                     "name":  "Red Plaid Flannel Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "n10.png",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  23,
+                      "fields":  {
+                                     "name":  "Khaki Chino Shorts Variant",
+                                     "price":  "799.00",
+                                     "image":  "n11.png",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  24,
+                      "fields":  {
+                                     "name":  "Red Flannel Shirt Variant",
+                                     "price":  "899.00",
+                                     "image":  "n12.png",
+                                     "category":  "new_arrival",
+                                     "description":  null
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  25,
+                      "fields":  {
+                                     "name":  "Colorful Abstract Print Shirt Variant",
+                                     "price":  "699.00",
+                                     "image":  "f1.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  "A fantastic new addition to our store: Neon Summer Activewear Top."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  26,
+                      "fields":  {
+                                     "name":  "Green Tropical Leaf Shirt Variant",
+                                     "price":  "1099.00",
+                                     "image":  "f2.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Emerald Evening Gown."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  27,
+                      "fields":  {
+                                     "name":  "Red Vintage Floral Shirt Variant",
+                                     "price":  "899.00",
+                                     "image":  "f3.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Maroon Velvet Blazer."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  28,
+                      "fields":  {
+                                     "name":  "White Blossom Print Shirt Variant",
+                                     "price":  "999.00",
+                                     "image":  "f4.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Ivory Cashmere Sweater."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  29,
+                      "fields":  {
+                                     "name":  "Navy Blue Floral Shirt Variant",
+                                     "price":  "1999.00",
+                                     "image":  "f5.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  "A fantastic new addition to our store: Sapphire Blue Polo."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  30,
+                      "fields":  {
+                                     "name":  "Color Block Corduroy Shirt Variant",
+                                     "price":  "699.00",
+                                     "image":  "f6.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Vintage Brown Jacket."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  31,
+                      "fields":  {
+                                     "name":  "Beige Cargo Trousers Variant",
+                                     "price":  "1099.00",
+                                     "image":  "f7.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Olive Green Cargo Pants."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  32,
+                      "fields":  {
+                                     "name":  "Purple Patterned Blouse Variant",
+                                     "price":  "999.00",
+                                     "image":  "f8.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Lavender Silk Blouse."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  33,
+                      "fields":  {
+                                     "name":  "Bright Yellow Summer Polo Variant",
+                                     "price":  "1299.00",
+                                     "image":  "f9.png",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Golden Honey T-Shirt."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  34,
+                      "fields":  {
+                                     "name":  "Pastel Pink Casual Shirt Variant",
+                                     "price":  "499.00",
+                                     "image":  "f10.png",
+                                     "category":  "new_arrival",
+                                     "description":  "A fantastic new addition to our store: Rose Pink Casual Dress."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  35,
+                      "fields":  {
+                                     "name":  "Dark Green Linen Shirt Variant",
+                                     "price":  "1999.00",
+                                     "image":  "f11.png",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Forest Green Hoodie."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  36,
+                      "fields":  {
+                                     "name":  "Black Graphic T-Shirt Variant",
+                                     "price":  "499.00",
+                                     "image":  "f12.png",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Midnight Black Denim."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  37,
+                      "fields":  {
+                                     "name":  "Light Blue Casual Shirt Variant",
+                                     "price":  "699.00",
+                                     "image":  "n1.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Sky Blue Oxford Shirt."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  38,
+                      "fields":  {
+                                     "name":  "Navy Pinstripe Formal Shirt Variant",
+                                     "price":  "1999.00",
+                                     "image":  "n2.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Navy Blue Business Suit."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  39,
+                      "fields":  {
+                                     "name":  "Classic White Cotton Shirt Variant",
+                                     "price":  "999.00",
+                                     "image":  "n3.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Pearl White Tank Top."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  40,
+                      "fields":  {
+                                     "name":  "Desert Camo Short Sleeve Shirt Variant",
+                                     "price":  "999.00",
+                                     "image":  "n4.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  "A fantastic new addition to our store: Desert Sand Trench Coat."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  41,
+                      "fields":  {
+                                     "name":  "Denim Blue Long Sleeve Shirt Variant",
+                                     "price":  "499.00",
+                                     "image":  "n5.jpg",
+                                     "category":  "featured",
+                                     "description":  "A fantastic new addition to our store: Indigo Denim Jacket."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  42,
+                      "fields":  {
+                                     "name":  "Grey Casual Shorts Variant",
+                                     "price":  "1099.00",
+                                     "image":  "n6.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Charcoal Grey Joggers."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  43,
+                      "fields":  {
+                                     "name":  "Brown Cargo Shirt Variant",
+                                     "price":  "999.00",
+                                     "image":  "n7.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  "A fantastic new addition to our store: Earth Brown Overcoat."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  44,
+                      "fields":  {
+                                     "name":  "Dark Grey Basic Shirt Variant",
+                                     "price":  "999.00",
+                                     "image":  "n8.jpg",
+                                     "category":  "regular",
+                                     "description":  "A fantastic new addition to our store: Slate Grey Workout Tee."
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  45,
+                      "fields":  {
+                                     "name":  "Maroon Tribal Pattern Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "4ilpw_512.avif",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Signature Heather Sneakers, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  46,
+                      "fields":  {
+                                     "name":  "White Artistic Pattern Shirt",
+                                     "price":  "699.00",
+                                     "image":  "515417seSiL._SX569_.jpg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Cozy Emerald Jeans, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  47,
+                      "fields":  {
+                                     "name":  "Green Dragon Graphics Shirt",
+                                     "price":  "1999.00",
+                                     "image":  "ayqfo_512.avif",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Luxurious Black Tee, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  48,
+                      "fields":  {
+                                     "name":  "Red \u0026 Gold Pattern Shirt",
+                                     "price":  "1499.00",
+                                     "image":  "csmr1_512.avif",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Premium White Jacket, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  49,
+                      "fields":  {
+                                     "name":  "Casual Graphic Top",
+                                     "price":  "1499.00",
+                                     "image":  "fztha_512.avif",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Signature Heather Hoodie, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  50,
+                      "fields":  {
+                                     "name":  "Casual Long Sleeve Top",
+                                     "price":  "799.00",
+                                     "image":  "mzofq_512.avif",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Elegant Heather Blazer, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  51,
+                      "fields":  {
+                                     "name":  "Green Graphic Button-Up Shirt",
+                                     "price":  "599.00",
+                                     "image":  "sn3dz_512.avif",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Athletic Crimson Tee, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  52,
+                      "fields":  {
+                                     "name":  "White \u0026 Red Graphic Long Sleeve",
+                                     "price":  "899.00",
+                                     "image":  "ufdpg_512.avif",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Luxurious Beige Activewear, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  53,
+                      "fields":  {
+                                     "name":  "Casual Trousers",
+                                     "price":  "699.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.46 PM.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Modern Heather Jeans, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  54,
+                      "fields":  {
+                                     "name":  "Tan Wide-Leg Trousers",
+                                     "price":  "1999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.47 PM.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Signature Beige Cardigan, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  55,
+                      "fields":  {
+                                     "name":  "Grey Pleated Trousers",
+                                     "price":  "799.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.48 PM.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Chic Emerald Polo, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  56,
+                      "fields":  {
+                                     "name":  "Maroon Classic Trousers",
+                                     "price":  "1999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.49 PM.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Luxurious Burgundy Blazer, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  57,
+                      "fields":  {
+                                     "name":  "White Classic Slacks",
+                                     "price":  "1499.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.50 PM.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Minimalist White Summer Dress, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  58,
+                      "fields":  {
+                                     "name":  "Tan Classic Trousers",
+                                     "price":  "999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.54 PM.jpeg1.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Elegant Navy Activewear, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  59,
+                      "fields":  {
+                                     "name":  "Olive Green Trousers",
+                                     "price":  "1099.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg2.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Modern Slate Chinos, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  60,
+                      "fields":  {
+                                     "name":  "Everyday Chinos",
+                                     "price":  "799.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg3.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Essential Slate Polo, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  61,
+                      "fields":  {
+                                     "name":  "Olive Cargo Pants",
+                                     "price":  "1999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.55 PM.jpeg4.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Premium Beige Jacket, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  62,
+                      "fields":  {
+                                     "name":  "Black Straight Trousers",
+                                     "price":  "599.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg5.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Cozy Indigo Tee, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  63,
+                      "fields":  {
+                                     "name":  "Dark Grey Trousers",
+                                     "price":  "1299.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg6.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Casual Navy Overcoat, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  64,
+                      "fields":  {
+                                     "name":  "Grey Urban Cargo Pants",
+                                     "price":  "999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.56 PM.jpeg7.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Luxurious Indigo Blazer, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  65,
+                      "fields":  {
+                                     "name":  "Grey Patterned Trousers",
+                                     "price":  "699.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg10.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Premium Black Hoodie, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  66,
+                      "fields":  {
+                                     "name":  "Dark Grey Wide Leg Pants",
+                                     "price":  "1099.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg8.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Casual Emerald Jacket, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  67,
+                      "fields":  {
+                                     "name":  "Brown Loose Trousers",
+                                     "price":  "1499.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.57 PM.jpeg9.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Luxurious Ivory Blazer, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  68,
+                      "fields":  {
+                                     "name":  "Brown Casual Trousers",
+                                     "price":  "1299.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg11.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Cozy Mustard Overcoat, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  69,
+                      "fields":  {
+                                     "name":  "Tan Combat Cargo Pants",
+                                     "price":  "499.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg12.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Athletic Navy Activewear, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  70,
+                      "fields":  {
+                                     "name":  "Grey Cargo Pants",
+                                     "price":  "499.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg13.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Trendsetting Slate Overcoat, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  71,
+                      "fields":  {
+                                     "name":  "Olive Oversized Cargo Pants",
+                                     "price":  "699.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.58 PM.jpeg14.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Signature White Polo, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  72,
+                      "fields":  {
+                                     "name":  "Black Baggy Trousers",
+                                     "price":  "599.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg15.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Elegant Ivory Chinos, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  73,
+                      "fields":  {
+                                     "name":  "Black Baggy Cargo Pants",
+                                     "price":  "599.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg16.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Casual Heather Activewear, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  74,
+                      "fields":  {
+                                     "name":  "Grey Vintage Denim",
+                                     "price":  "899.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.19.59 PM.jpeg17.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Casual Heather Chinos, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  75,
+                      "fields":  {
+                                     "name":  "Black Skater Jeans",
+                                     "price":  "799.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Minimalist Charcoal Sweater, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  76,
+                      "fields":  {
+                                     "name":  "Grey Wide Leg Jeans",
+                                     "price":  "1999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg16.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Modern Burgundy Sweater, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  77,
+                      "fields":  {
+                                     "name":  "Grey Straight Wash Jeans",
+                                     "price":  "699.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.00 PM.jpeg17.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Luxurious Mustard Sweater, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  78,
+                      "fields":  {
+                                     "name":  "Charcoal Loose Jeans",
+                                     "price":  "1099.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg18.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Signature Heather Jacket, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  79,
+                      "fields":  {
+                                     "name":  "Light Blue Baggy Jeans",
+                                     "price":  "1099.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg19.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Signature Crimson Summer Dress, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  80,
+                      "fields":  {
+                                     "name":  "Blue Loose Fit Jeans",
+                                     "price":  "799.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.01 PM.jpeg20.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Comfort Burgundy Overcoat, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  81,
+                      "fields":  {
+                                     "name":  "White Straight Jeans",
+                                     "price":  "599.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Classic Burgundy Slacks, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  82,
+                      "fields":  {
+                                     "name":  "Black Classic Chinos",
+                                     "price":  "899.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg21.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Classic Crimson Sneakers, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  83,
+                      "fields":  {
+                                     "name":  "Light Blue Wide Leg Jeans",
+                                     "price":  "1499.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.02 PM.jpeg23.jpeg",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Minimalist Ivory Sweater, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  84,
+                      "fields":  {
+                                     "name":  "Everyday Straight Jeans",
+                                     "price":  "999.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.03 PM.jpeg",
+                                     "category":  "regular",
+                                     "description":  "Check out our new Vintage Burgundy Windbreaker, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  85,
+                      "fields":  {
+                                     "name":  "Black Formal Trousers",
+                                     "price":  "699.00",
+                                     "image":  "WhatsApp Image 2026-03-18 at 3.20.03 PM.jpeg24.jpeg",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Athletic Emerald Tee, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  86,
+                      "fields":  {
+                                     "name":  "Orange Patterned Shirt",
+                                     "price":  "1099.00",
+                                     "image":  "wlpyh_512.avif",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Cozy Navy Tee, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  87,
+                      "fields":  {
+                                     "name":  "Blue Multi-Stripe Shirt",
+                                     "price":  "999.00",
+                                     "image":  "yd0sx_512.avif",
+                                     "category":  "new_arrival",
+                                     "description":  "Check out our new Chic White Jeans, offering incredible style and value!"
+                                 }
+                  },
+                  {
+                      "model":  "store.product",
+                      "pk":  88,
+                      "fields":  {
+                                     "name":  "White Portrait T-Shirt",
+                                     "price":  "799.00",
+                                     "image":  "z3z5q_512.avif",
+                                     "category":  "featured",
+                                     "description":  "Check out our new Comfort Black Slacks, offering incredible style and value!"
+                                 }
+                  }
+              ],
+    "Count":  88
 }
-]

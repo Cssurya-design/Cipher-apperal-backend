@@ -1,28 +1,11 @@
 from django.urls import path
+from django.views.generic import RedirectView
 from . import views
 from . import views_api
 
 urlpatterns = [
-    # Pages
-    path('', views.index, name='index'),
-    path('shop/', views.shop, name='shop'),
-    path('sproduct/', views.sproduct, name='sproduct'),
-    path('cart/', views.cart, name='cart'),
-    path('wishlist/', views.wishlist_view, name='wishlist'),
-    path('about/', views.about, name='about'),
-    path('blog/', views.blog, name='blog'),
-    path('contact/', views.contact, name='contact'),
-
-    # Auth
-    path('signup/', views.signup_view, name='signup'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('auth/google/', views.google_login, name='google_login'),
-    path('auth/google/callback/', views.google_callback, name='google_callback'),
-
-    # Dashboard & profile
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    path('edit-profile/', views.edit_profile_view, name='edit_profile'),
+    # Redirect root to React Frontend
+    path('', RedirectView.as_view(url='https://cipher-apperal.vercel.app/', permanent=False)),
 
     # API endpoints
     path('rate-product/', views.rate_product_view, name='rate_product'),
