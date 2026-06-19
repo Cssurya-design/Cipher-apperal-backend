@@ -28,6 +28,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'name': self.user.name,
             'profile_pic': profile_pic_url,
             'phone': self.user.phone or '',
+            'is_staff': self.user.is_staff,
         }
         return data
 
@@ -465,13 +466,13 @@ def api_google_login(request):
             if user.profile_pic:
                 profile_pic_url = user.profile_pic.url
 
-            # Add custom claims
             refresh['user'] = {
                 'id': user.id,
                 'email': user.email,
                 'name': user.name,
                 'profile_pic': profile_pic_url,
                 'phone': user.phone or '',
+                'is_staff': user.is_staff,
             }
             
             return JsonResponse({
@@ -511,3 +512,51 @@ def api_product_reviews(request, pk):
         })
     except Product.DoesNotExist:
         return JsonResponse({"error": "Product not found"}, status=404)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_admin_orders(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    orders = Order.objects.all().order_by("-created_at")
+    data = []
+    for o in orders:
+        data.append({
+            "id": o.id,
+            "user_email": o.user.email,
+            "product_name": o.product_name,
+            "product_img": o.product_img,
+            "price": str(o.price),
+            "quantity": o.quantity,
+            "size": o.size,
+            "status": o.status,
+            "status_display": o.get_status_display(),
+            "payment_method": o.payment_method,
+            "payment_status": o.get_payment_status_display() if hasattr(o, 'get_payment_status_display') else o.payment_status,
+            "transaction_id": o.transaction_id,
+            "date": o.created_at.strftime("%b %d, %Y - %H:%M"),
+        })
+    return JsonResponse({"orders": data})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_update_order(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    try:
+        order = Order.objects.get(pk=pk)
+        data = json.loads(request.body)
+        
+        if 'status' in data:
+            order.status = data['status']
+        if 'payment_status' in data:
+            order.payment_status = data['payment_status']
+            
+        order.save()
+        return JsonResponse({"status": "success", "message": "Order updated"})
+    except Order.DoesNotExist:
+        return JsonResponse({"error": "Order not found"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
