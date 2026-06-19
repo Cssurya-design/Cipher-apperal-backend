@@ -87,14 +87,41 @@ def api_user_profile(request):
             "date_joined": user.date_joined.strftime("%b %d, %Y"),
         })
     elif request.method == 'POST':
-        data = json.loads(request.body)
-        user.name = data.get('name', user.name)
-        if data.get('age'):
-            user.age = data.get('age')
-        if data.get('phone') is not None:
-            user.phone = data.get('phone', '')
+        try:
+            data = json.loads(request.body)
+            name = data.get('name', user.name)
+            age = data.get('age')
+            phone = data.get('phone')
+        except json.JSONDecodeError:
+            name = request.POST.get('name', user.name)
+            age = request.POST.get('age')
+            phone = request.POST.get('phone')
+            
+        user.name = name
+        if age:
+            user.age = age
+        if phone is not None:
+            user.phone = phone
+            
+        profile_pic = request.FILES.get('profile_pic')
+        if profile_pic:
+            user.profile_pic = profile_pic
+            
         user.save()
-        return JsonResponse({"status": "success"})
+        
+        profile_pic_url = ''
+        if user.profile_pic:
+            profile_pic_url = user.profile_pic.url
+            
+        return JsonResponse({
+            "status": "success",
+            "user": {
+                "name": user.name,
+                "profile_pic": profile_pic_url,
+                "email": user.email,
+                "phone": user.phone or ''
+            }
+        })
 
 @csrf_exempt
 def api_contact(request):
