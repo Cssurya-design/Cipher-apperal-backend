@@ -92,28 +92,17 @@ def api_user_profile(request):
             "date_joined": user.date_joined.strftime("%b %d, %Y"),
         })
     elif request.method == 'POST':
-        if request.content_type.startswith('multipart/form-data'):
-            name = request.POST.get('name', user.name)
-            age = request.POST.get('age')
-            phone = request.POST.get('phone')
-        else:
-            try:
-                data = json.loads(request.body)
-                name = data.get('name', user.name)
-                age = data.get('age')
-                phone = data.get('phone')
-            except json.JSONDecodeError:
-                name = request.POST.get('name', user.name)
-                age = request.POST.get('age')
-                phone = request.POST.get('phone')
-            
+        name = request.data.get('name', user.name)
+        age = request.data.get('age')
+        phone = request.data.get('phone')
+        
         user.name = name
         if age:
             user.age = age
         if phone is not None:
             user.phone = phone
             
-        profile_pic = request.FILES.get('profile_pic')
+        profile_pic = request.data.get('profile_pic')
         if profile_pic:
             user.profile_pic = profile_pic
             
@@ -512,9 +501,12 @@ def api_google_login(request):
             if picture_url and not user.profile_pic:
                 try:
                     from django.core.files.base import ContentFile
-                    response = requests.get(picture_url)
-                    if response.status_code == 200:
-                        user.profile_pic.save(f"google_{user.id}.jpg", ContentFile(response.content), save=True)
+                    import urllib.request
+                    
+                    req = urllib.request.Request(picture_url, headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req) as response:
+                        if response.status == 200:
+                            user.profile_pic.save(f"google_{user.id}.jpg", ContentFile(response.read()), save=True)
                 except Exception as e:
                     print(f"Error fetching Google profile pic: {e}")
             
