@@ -40,11 +40,18 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 def api_signup(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            email = data.get('email')
-            password = data.get('password')
-            name = data.get('name', '')
+            try:
+                data = json.loads(request.body)
+                email = data.get('email')
+                password = data.get('password')
+                name = data.get('name', '')
+            except json.JSONDecodeError:
+                email = request.POST.get('email')
+                password = request.POST.get('password')
+                name = request.POST.get('name', '')
             
+            profile_pic = request.FILES.get('profile_pic')
+
             if User.objects.filter(email=email).exists():
                 return JsonResponse({"error": "Email already exists"}, status=400)
                 
@@ -53,6 +60,11 @@ def api_signup(request):
                 password=password,
                 name=name,
             )
+            
+            if profile_pic:
+                user.profile_pic = profile_pic
+                user.save()
+                
             return JsonResponse({"status": "success", "message": "User created successfully"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -458,6 +470,16 @@ def api_google_login(request):
                     'name': name,
                 }
             )
+            
+            picture_url = idinfo.get('picture')
+            if picture_url and not user.profile_pic:
+                try:
+                    from django.core.files.base import ContentFile
+                    response = requests.get(picture_url)
+                    if response.status_code == 200:
+                        user.profile_pic.save(f"google_{user.id}.jpg", ContentFile(response.content), save=True)
+                except Exception as e:
+                    print(f"Error fetching Google profile pic: {e}")
             
             # Generate JWT tokens manually for the user
             from rest_framework_simplejwt.tokens import RefreshToken
