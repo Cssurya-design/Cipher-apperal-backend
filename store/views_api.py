@@ -75,8 +75,12 @@ def api_signup(request):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.decorators import parser_classes
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 def api_user_profile(request):
     user = request.user
     if request.method == 'GET':
@@ -92,35 +96,38 @@ def api_user_profile(request):
             "date_joined": user.date_joined.strftime("%b %d, %Y"),
         })
     elif request.method == 'POST':
-        name = request.data.get('name', user.name)
-        age = request.data.get('age')
-        phone = request.data.get('phone')
-        
-        user.name = name
-        if age:
-            user.age = age
-        if phone is not None:
-            user.phone = phone
+        try:
+            name = request.data.get('name', user.name)
+            age = request.data.get('age')
+            phone = request.data.get('phone')
             
-        profile_pic = request.data.get('profile_pic')
-        if profile_pic:
-            user.profile_pic = profile_pic
+            user.name = name
+            if age:
+                user.age = age
+            if phone is not None:
+                user.phone = phone
+                
+            profile_pic = request.data.get('profile_pic')
+            if profile_pic:
+                user.profile_pic = profile_pic
+                
+            user.save()
             
-        user.save()
-        
-        profile_pic_url = ''
-        if user.profile_pic:
-            profile_pic_url = user.profile_pic.url
-            
-        return JsonResponse({
-            "status": "success",
-            "user": {
-                "name": user.name,
-                "profile_pic": profile_pic_url,
-                "email": user.email,
-                "phone": user.phone or ''
-            }
-        })
+            profile_pic_url = ''
+            if user.profile_pic:
+                profile_pic_url = user.profile_pic.url
+                
+            return JsonResponse({
+                "status": "success",
+                "user": {
+                    "name": user.name,
+                    "profile_pic": profile_pic_url,
+                    "email": user.email,
+                    "phone": user.phone or ''
+                }
+            })
+        except Exception as e:
+            return JsonResponse({"status": "error", "error": str(e)}, status=400)
 
 @csrf_exempt
 def api_contact(request):
