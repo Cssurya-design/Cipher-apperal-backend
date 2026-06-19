@@ -22,10 +22,10 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("user", "product_name", "price", "quantity", "size", "status", "created_at")
-    search_fields = ("user__email", "product_name")
-    list_filter = ("status", "size", "created_at")
-    list_editable = ("status",)
+    list_display = ("user", "product_name", "price", "quantity", "payment_method", "payment_status", "status", "created_at")
+    search_fields = ("user__email", "product_name", "transaction_id")
+    list_filter = ("status", "payment_method", "payment_status", "created_at")
+    list_editable = ("status", "payment_status")
 
 
 @admin.register(ProductRating)

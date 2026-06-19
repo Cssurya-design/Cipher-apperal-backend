@@ -238,6 +238,8 @@ def api_save_order(request):
     try:
         data = json.loads(request.body)
         items = data.get('items', [])
+        payment_method = data.get('payment_method', 'UPI')
+        transaction_id = data.get('transaction_id', '')
         
         from .models import Order
         
@@ -252,6 +254,9 @@ def api_save_order(request):
                 quantity=item.get('quantity', 1),
                 size=item.get('size', ''),
                 status='placed',
+                payment_method=payment_method,
+                payment_status='Pending',
+                transaction_id=transaction_id,
             )
             created_orders.append({
                 "id": order.id,
@@ -357,6 +362,8 @@ def api_orders(request):
             "size": o.size,
             "status": o.status,
             "status_display": o.get_status_display(),
+            "payment_method": o.payment_method,
+            "payment_status": o.get_payment_status_display(),
             "user_rating": user_rating,
             "date": o.created_at.strftime("%b %d, %Y"),
         })

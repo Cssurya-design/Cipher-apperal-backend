@@ -74,6 +74,13 @@ class Order(models.Model):
     status = models.CharField(
         max_length=20, choices=ORDER_STATUS_CHOICES, default="placed"
     )
+    payment_method = models.CharField(
+        max_length=20, choices=[("UPI", "UPI"), ("COD", "Cash on Delivery")], default="UPI"
+    )
+    payment_status = models.CharField(
+        max_length=20, choices=[("Pending", "Pending Verification"), ("Verified", "Verified"), ("Failed", "Failed")], default="Pending"
+    )
+    transaction_id = models.CharField(max_length=100, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
