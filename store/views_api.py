@@ -524,6 +524,8 @@ def api_google_login(request):
             profile_pic_url = ''
             if user.profile_pic:
                 profile_pic_url = user.profile_pic.url
+            elif picture_url:
+                profile_pic_url = picture_url
 
             refresh['user'] = {
                 'id': user.id,
