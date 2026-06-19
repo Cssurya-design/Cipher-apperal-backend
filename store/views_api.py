@@ -29,6 +29,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'profile_pic': profile_pic_url,
             'phone': self.user.phone or '',
             'is_staff': self.user.is_staff,
+            'is_superuser': self.user.is_superuser,
         }
         return data
 
@@ -473,6 +474,7 @@ def api_google_login(request):
                 'profile_pic': profile_pic_url,
                 'phone': user.phone or '',
                 'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser,
             }
             
             return JsonResponse({
@@ -574,6 +576,7 @@ def api_admin_staff_list(request):
             "id": u.id,
             "email": u.email,
             "name": u.name,
+            "is_superuser": u.is_superuser,
             "date_joined": u.date_joined.strftime("%b %d, %Y") if u.date_joined else "Unknown"
         })
     return JsonResponse({"staff": data})
@@ -581,27 +584,33 @@ def api_admin_staff_list(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_admin_staff_add(request):
-    if not request.user.is_staff:
-        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+    if not request.user.is_superuser:
+        return JsonResponse({"error": "Forbidden: Only the Owner can add staff"}, status=403)
         
     try:
         data = json.loads(request.body)
         email = data.get('email', '').strip().lower()
+        role = data.get('role', 'staff') # 'admin' or 'staff'
+        
         if not email:
             return JsonResponse({"error": "Email is required"}, status=400)
             
+        is_su = True if role == 'admin' else False
+        
         user, created = User.objects.get_or_create(
             email=email,
-            defaults={'is_staff': True}
+            defaults={'is_staff': True, 'is_superuser': is_su}
         )
         
         if not created:
             user.is_staff = True
+            user.is_superuser = is_su
             user.save()
             
+        role_name = "Admin" if is_su else "Staff"
         return JsonResponse({
             "status": "success", 
-            "message": f"Successfully granted admin access to {email}",
+            "message": f"Successfully granted {role_name} access to {email}",
             "created": created
         })
     except Exception as e:
@@ -610,8 +619,8 @@ def api_admin_staff_add(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def api_admin_staff_remove(request):
-    if not request.user.is_staff:
-        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+    if not request.user.is_superuser:
+        return JsonResponse({"error": "Forbidden: Only the Owner can revoke access"}, status=403)
         
     try:
         data = json.loads(request.body)
@@ -623,6 +632,7 @@ def api_admin_staff_remove(request):
         try:
             user = User.objects.get(email=email)
             user.is_staff = False
+            user.is_superuser = False
             user.save()
             return JsonResponse({"status": "success", "message": f"Revoked access for {email}"})
         except User.DoesNotExist:
