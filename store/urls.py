@@ -41,4 +41,7 @@ urlpatterns = [
     # Admin APIs
     path('api/admin/orders/', views_api.api_admin_orders, name='api_admin_orders'),
     path('api/admin/orders/<int:pk>/update/', views_api.api_admin_update_order, name='api_admin_update_order'),
+    path('api/admin/staff/', views_api.api_admin_staff_list, name='api_admin_staff_list'),
+    path('api/admin/staff/add/', views_api.api_admin_staff_add, name='api_admin_staff_add'),
+    path('api/admin/staff/remove/', views_api.api_admin_staff_remove, name='api_admin_staff_remove'),
 ]

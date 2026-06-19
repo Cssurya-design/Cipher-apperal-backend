@@ -560,3 +560,73 @@ def api_admin_update_order(request, pk):
         return JsonResponse({"error": "Order not found"}, status=404)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_admin_staff_list(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    staff_users = User.objects.filter(is_staff=True).order_by('email')
+    data = []
+    for u in staff_users:
+        data.append({
+            "id": u.id,
+            "email": u.email,
+            "name": u.name,
+            "date_joined": u.date_joined.strftime("%b %d, %Y") if u.date_joined else "Unknown"
+        })
+    return JsonResponse({"staff": data})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_staff_add(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    try:
+        data = json.loads(request.body)
+        email = data.get('email', '').strip().lower()
+        if not email:
+            return JsonResponse({"error": "Email is required"}, status=400)
+            
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={'is_staff': True}
+        )
+        
+        if not created:
+            user.is_staff = True
+            user.save()
+            
+        return JsonResponse({
+            "status": "success", 
+            "message": f"Successfully granted admin access to {email}",
+            "created": created
+        })
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_staff_remove(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    try:
+        data = json.loads(request.body)
+        email = data.get('email', '').strip().lower()
+        
+        if email == request.user.email:
+            return JsonResponse({"error": "You cannot revoke your own access!"}, status=400)
+            
+        try:
+            user = User.objects.get(email=email)
+            user.is_staff = False
+            user.save()
+            return JsonResponse({"status": "success", "message": f"Revoked access for {email}"})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"}, status=404)
+            
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
