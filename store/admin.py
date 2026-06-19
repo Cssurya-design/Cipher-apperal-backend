@@ -13,11 +13,19 @@ from .models import (
 # Register your models here.
 
 
+from django.utils.html import format_html
+
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ("email", "name", "phone", "is_staff", "is_superuser", "date_joined")
+    list_display = ("email", "name", "phone", "is_staff", "is_superuser", "get_profile_pic_preview", "date_joined")
     search_fields = ("email", "name", "phone")
     list_filter = ("is_staff", "is_superuser", "is_active")
+
+    def get_profile_pic_preview(self, obj):
+        if obj.profile_pic:
+            return format_html('<img src="{}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" />', obj.profile_pic.url)
+        return "-"
+    get_profile_pic_preview.short_description = "Profile Pic"
 
 
 @admin.register(Order)
