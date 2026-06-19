@@ -27,6 +27,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     age = models.PositiveIntegerField(null=True, blank=True)
+    phone = models.CharField(max_length=20, blank=True, default="")
     profile_pic = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -41,14 +42,38 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
+ORDER_STATUS_CHOICES = [
+    ("placed", "Order Placed"),
+    ("processing", "Processing"),
+    ("shipped", "Shipped"),
+    ("delivered", "Delivered"),
+    ("cancelled", "Cancelled"),
+]
+
+SIZE_CHOICES = [
+    ("XS", "XS"),
+    ("S", "S"),
+    ("M", "M"),
+    ("L", "L"),
+    ("XL", "XL"),
+    ("XXL", "XXL"),
+    ("", "N/A"),
+]
+
+
 class Order(models.Model):
     user = models.ForeignKey(
         CustomUser, on_delete=models.CASCADE, related_name="orders"
     )
     product_name = models.CharField(max_length=255)
     product_img = models.CharField(max_length=500, blank=True)
+    product_description = models.TextField(blank=True, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=5, choices=SIZE_CHOICES, blank=True, default="")
+    status = models.CharField(
+        max_length=20, choices=ORDER_STATUS_CHOICES, default="placed"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -80,6 +105,7 @@ class ProductRating(models.Model):
     )
     product_name = models.CharField(max_length=255)
     rating = models.PositiveSmallIntegerField(default=0)  # 1-5
+    review_text = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

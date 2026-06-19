@@ -28,6 +28,7 @@ urlpatterns = [
     
     path('api/products/', views_api.api_get_products, name='api_products'),
     path('api/products/<int:pk>/', views_api.api_get_product, name='api_get_product'),
+    path('api/products/<int:pk>/reviews/', views_api.api_product_reviews, name='api_product_reviews'),
     path('api/featured/', views_api.api_get_featured, name='api_featured'),
     path('api/save-order/', views_api.api_save_order, name='api_save_order'),
     path('api/wishlist/', views_api.api_wishlist, name='api_wishlist'),

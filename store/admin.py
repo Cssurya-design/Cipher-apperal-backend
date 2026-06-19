@@ -15,16 +15,17 @@ from .models import (
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-    list_display = ("email", "name", "is_staff", "is_superuser", "date_joined")
-    search_fields = ("email", "name")
+    list_display = ("email", "name", "phone", "is_staff", "is_superuser", "date_joined")
+    search_fields = ("email", "name", "phone")
     list_filter = ("is_staff", "is_superuser", "is_active")
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("user", "product_name", "price", "quantity", "created_at")
+    list_display = ("user", "product_name", "price", "quantity", "size", "status", "created_at")
     search_fields = ("user__email", "product_name")
-    list_filter = ("created_at",)
+    list_filter = ("status", "size", "created_at")
+    list_editable = ("status",)
 
 
 @admin.register(ProductRating)
