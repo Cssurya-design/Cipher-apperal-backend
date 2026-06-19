@@ -40,15 +40,20 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 def api_signup(request):
     if request.method == "POST":
         try:
-            try:
-                data = json.loads(request.body)
-                email = data.get('email')
-                password = data.get('password')
-                name = data.get('name', '')
-            except json.JSONDecodeError:
+            if request.content_type.startswith('multipart/form-data'):
                 email = request.POST.get('email')
                 password = request.POST.get('password')
                 name = request.POST.get('name', '')
+            else:
+                try:
+                    data = json.loads(request.body)
+                    email = data.get('email')
+                    password = data.get('password')
+                    name = data.get('name', '')
+                except json.JSONDecodeError:
+                    email = request.POST.get('email')
+                    password = request.POST.get('password')
+                    name = request.POST.get('name', '')
             
             profile_pic = request.FILES.get('profile_pic')
 
@@ -87,15 +92,20 @@ def api_user_profile(request):
             "date_joined": user.date_joined.strftime("%b %d, %Y"),
         })
     elif request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            name = data.get('name', user.name)
-            age = data.get('age')
-            phone = data.get('phone')
-        except json.JSONDecodeError:
+        if request.content_type.startswith('multipart/form-data'):
             name = request.POST.get('name', user.name)
             age = request.POST.get('age')
             phone = request.POST.get('phone')
+        else:
+            try:
+                data = json.loads(request.body)
+                name = data.get('name', user.name)
+                age = data.get('age')
+                phone = data.get('phone')
+            except json.JSONDecodeError:
+                name = request.POST.get('name', user.name)
+                age = request.POST.get('age')
+                phone = request.POST.get('phone')
             
         user.name = name
         if age:
