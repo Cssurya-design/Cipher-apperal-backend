@@ -28,7 +28,7 @@ ALLOWED_HOSTS = ["cipherapparel.pythonanywhere.com", "localhost", "127.0.0.1"]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://cipherapparel.pythonanywhere.com",
-    "https://cipher-apperal.vercel.app",
+    "https://cipher-apparel.vercel.app",
 ]
 
 
@@ -79,7 +79,7 @@ MIDDLEWARE = [
 
 # CORS - Allow Vercel frontend
 CORS_ALLOWED_ORIGINS = [
-    "https://cipher-apperal.vercel.app",
+    "https://cipher-apparel.vercel.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 

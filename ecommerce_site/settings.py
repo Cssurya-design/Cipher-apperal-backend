@@ -175,4 +175,4 @@ LOGOUT_REDIRECT_URL = "/"
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Trust Vercel frontend for CSRF
-CSRF_TRUSTED_ORIGINS = ['https://cipher-apperal.vercel.app']
+CSRF_TRUSTED_ORIGINS = ['https://cipher-apparel.vercel.app']

@@ -5,7 +5,7 @@ from . import views_api
 
 urlpatterns = [
     # Redirect root to React Frontend
-    path('', RedirectView.as_view(url='https://cipher-apperal.vercel.app/', permanent=False)),
+    path('', RedirectView.as_view(url='https://cipher-apparel.vercel.app/', permanent=False)),
 
     # API endpoints
     path('rate-product/', views.rate_product_view, name='rate_product'),
