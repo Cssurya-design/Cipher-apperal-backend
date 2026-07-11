@@ -1109,17 +1109,16 @@ def api_public_coupons(request):
         
     return JsonResponse({"coupons": valid_coupons})
 
- @ a p i _ v i e w ( [ ' D E L E T E ' ] ) 
- @ p e r m i s s i o n _ c l a s s e s ( [ I s A u t h e n t i c a t e d ] ) 
- d e f   a p i _ a d m i n _ d e l e t e _ o r d e r ( r e q u e s t ,   p k ) : 
-         i f   n o t   r e q u e s t . u s e r . i s _ s t a f f : 
-                 r e t u r n   J s o n R e s p o n s e ( { ' e r r o r ' :   ' F o r b i d d e n :   N o t   a n   a d m i n ' } ,   s t a t u s = 4 0 3 ) 
-         t r y : 
-                 o r d e r   =   O r d e r . o b j e c t s . g e t ( p k = p k ) 
-                 o r d e r . d e l e t e ( ) 
-                 r e t u r n   J s o n R e s p o n s e ( { ' m e s s a g e ' :   ' O r d e r   d e l e t e d   s u c c e s s f u l l y ' } ) 
-         e x c e p t   O r d e r . D o e s N o t E x i s t : 
-                 r e t u r n   J s o n R e s p o n s e ( { ' e r r o r ' :   ' O r d e r   n o t   f o u n d ' } ,   s t a t u s = 4 0 4 ) 
- 
- 
- 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_delete_order(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Forbidden: Not an admin'}, status=403)
+    try:
+        order = Order.objects.get(pk=pk)
+        order.delete()
+        return JsonResponse({'message': 'Order deleted successfully'})
+    except Order.DoesNotExist:
+        return JsonResponse({'error': 'Order not found'}, status=404)
+
+
