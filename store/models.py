@@ -188,3 +188,22 @@ class Wishlist(models.Model):
 
     def __str__(self):
         return f"{self.user.email} — {self.product.name}"
+
+
+class PromoBanner(models.Model):
+    POSITION_CHOICES = [
+        ("main", "Main Banner (Center)"),
+        ("small", "Small Banner (Half Width)"),
+        ("bottom", "Bottom Banner (Third Width)"),
+    ]
+    title = models.CharField(max_length=255)
+    subtitle = models.CharField(max_length=255, blank=True, default="")
+    description = models.TextField(blank=True, default="")
+    image = models.CharField(max_length=500, help_text="Image filename or path")
+    link = models.CharField(max_length=255, blank=True, default="/shop")
+    position = models.CharField(max_length=20, choices=POSITION_CHOICES, default="main")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_position_display()} - {self.title}"

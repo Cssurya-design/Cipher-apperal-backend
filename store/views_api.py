@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q, Avg, Count
-from .models import Product, Contact, Order, ProductRating, UserLocation, ORDER_STATUS_CHOICES
+from .models import Product, Contact, Order, ProductRating, UserLocation, ORDER_STATUS_CHOICES, PromoBanner
 import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -795,3 +795,88 @@ def api_cancel_order(request, pk):
     order.status = 'cancelled'
     order.save()
     return JsonResponse({"status": "success", "message": "Order cancelled successfully."})
+
+@api_view(['GET'])
+def api_get_banners(request):
+    """Fetch active promotional banners"""
+    banners = PromoBanner.objects.filter(is_active=True).order_by('-id')
+    data = [{
+        "id": b.id,
+        "title": b.title,
+        "subtitle": b.subtitle,
+        "description": b.description,
+        "image": b.image,
+        "link": b.link,
+        "position": b.position,
+    } for b in banners]
+    return JsonResponse({"banners": data})
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_banners(request):
+    """Admin endpoint to list and create banners"""
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    if request.method == 'GET':
+        banners = PromoBanner.objects.all().order_by('-id')
+        data = [{
+            "id": b.id,
+            "title": b.title,
+            "subtitle": b.subtitle,
+            "description": b.description,
+            "image": b.image,
+            "link": b.link,
+            "position": b.position,
+            "is_active": b.is_active,
+            "position_display": b.get_position_display(),
+        } for b in banners]
+        return JsonResponse({"banners": data})
+        
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            banner = PromoBanner.objects.create(
+                title=data.get('title', ''),
+                subtitle=data.get('subtitle', ''),
+                description=data.get('description', ''),
+                image=data.get('image', ''),
+                link=data.get('link', ''),
+                position=data.get('position', 'main'),
+                is_active=data.get('is_active', True),
+            )
+            return JsonResponse({"status": "success", "id": banner.id, "message": "Banner created successfully."})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_banner_detail(request, pk):
+    """Admin endpoint to update or delete a specific banner"""
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    try:
+        banner = PromoBanner.objects.get(pk=pk)
+    except PromoBanner.DoesNotExist:
+        return JsonResponse({"error": "Banner not found"}, status=404)
+        
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            if 'title' in data: banner.title = data['title']
+            if 'subtitle' in data: banner.subtitle = data['subtitle']
+            if 'description' in data: banner.description = data['description']
+            if 'image' in data: banner.image = data['image']
+            if 'link' in data: banner.link = data['link']
+            if 'position' in data: banner.position = data['position']
+            if 'is_active' in data: banner.is_active = data['is_active']
+            
+            banner.save()
+            return JsonResponse({"status": "success", "message": "Banner updated successfully."})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+            
+    elif request.method == 'DELETE':
+        banner.delete()
+        return JsonResponse({"status": "success", "message": "Banner deleted successfully."})
