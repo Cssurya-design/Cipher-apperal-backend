@@ -42,6 +42,12 @@ urlpatterns = [
     path('api/banners/', views_api.api_get_banners, name='api_get_banners'),
     path('api/admin/banners/', views_api.api_admin_banners, name='api_admin_banners'),
     path('api/admin/banners/<int:pk>/', views_api.api_admin_banner_detail, name='api_admin_banner_detail'),
+    
+    # Coupons
+    path('api/validate-coupon/', views_api.api_validate_coupon, name='api_validate_coupon'),
+    path('api/admin/coupons/', views_api.api_admin_coupons, name='api_admin_coupons'),
+    path('api/admin/coupons/<int:pk>/', views_api.api_admin_coupon_detail, name='api_admin_coupon_detail'),
+
     path('api/orders/<int:pk>/', views_api.api_order_detail, name='api_order_detail'),
     path('api/orders/<int:pk>/cancel/', views_api.api_cancel_order, name='api_cancel_order'),
 

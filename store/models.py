@@ -82,6 +82,8 @@ class Order(models.Model):
     )
     transaction_id = models.CharField(max_length=100, blank=True, default="")
     address = models.TextField(blank=True, default="")
+    coupon_code = models.CharField(max_length=50, blank=True, default="")
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -195,15 +197,31 @@ class PromoBanner(models.Model):
         ("main", "Main Banner (Center)"),
         ("small", "Small Banner (Half Width)"),
         ("bottom", "Bottom Banner (Third Width)"),
+        ("promo", "Promo Code Bar (Top Announcement)"),
     ]
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, blank=True, default="")
     description = models.TextField(blank=True, default="")
-    image = models.CharField(max_length=500, help_text="Image filename or path")
+    image = models.CharField(max_length=500, blank=True, default="", help_text="Image filename or path")
     link = models.CharField(max_length=255, blank=True, default="/shop")
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name="promoted_in")
     position = models.CharField(max_length=20, choices=POSITION_CHOICES, default="main")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.get_position_display()} - {self.title}"
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount_percentage = models.PositiveIntegerField(help_text="Discount in percentage (0-100)")
+    max_uses = models.PositiveIntegerField(default=100)
+    current_uses = models.PositiveIntegerField(default=0)
+    valid_from = models.DateTimeField(null=True, blank=True)
+    valid_to = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.code} - {self.discount_percentage}% OFF"

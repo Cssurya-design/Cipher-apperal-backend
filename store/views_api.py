@@ -287,6 +287,24 @@ def api_save_order(request):
         items = data.get('items', [])
         payment_method = data.get('payment_method', 'UPI')
         transaction_id = data.get('transaction_id', '')
+        coupon_code = data.get('coupon_code', '').strip().upper()
+
+        discount_percentage = 0
+        from django.utils import timezone
+        from .models import Coupon, Order
+
+        if coupon_code:
+            try:
+                coupon = Coupon.objects.get(code=coupon_code, is_active=True)
+                now = timezone.now()
+                if (not coupon.valid_from or coupon.valid_from <= now) and \
+                   (not coupon.valid_to or coupon.valid_to >= now) and \
+                   coupon.current_uses < coupon.max_uses:
+                    discount_percentage = coupon.discount_percentage
+                    coupon.current_uses += 1
+                    coupon.save()
+            except Coupon.DoesNotExist:
+                pass
 
         # Capture user's saved delivery address
         address_str = ''
@@ -301,12 +319,16 @@ def api_save_order(request):
 
         created_orders = []
         for item in items:
+            original_price = float(item.get('price', 0))
+            discount_amount = original_price * (discount_percentage / 100.0)
+            final_price = original_price - discount_amount
+
             order = Order.objects.create(
                 user=request.user,
                 product_name=item.get('name', ''),
                 product_img=item.get('image', ''),
                 product_description=item.get('description', ''),
-                price=item.get('price', 0),
+                price=final_price,
                 quantity=item.get('quantity', 1),
                 size=item.get('size', ''),
                 status='placed',
@@ -314,6 +336,8 @@ def api_save_order(request):
                 payment_status='Pending',
                 transaction_id=transaction_id,
                 address=address_str,
+                coupon_code=coupon_code if discount_percentage > 0 else '',
+                discount_amount=discount_amount * item.get('quantity', 1),
             )
             created_orders.append({
                 "id": order.id,
@@ -808,6 +832,12 @@ def api_get_banners(request):
         "image": b.image,
         "link": b.link,
         "position": b.position,
+        "product": {
+            "id": b.product.id,
+            "name": b.product.name,
+            "price": b.product.price,
+            "image": b.product.image
+        } if b.product else None,
     } for b in banners]
     return JsonResponse({"banners": data})
 
@@ -828,6 +858,7 @@ def api_admin_banners(request):
             "image": b.image,
             "link": b.link,
             "position": b.position,
+            "product_id": b.product_id,
             "is_active": b.is_active,
             "position_display": b.get_position_display(),
         } for b in banners]
@@ -835,15 +866,31 @@ def api_admin_banners(request):
         
     elif request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            if request.content_type and request.content_type.startswith('multipart/form-data'):
+                data = request.POST
+                image_file = request.FILES.get('image')
+            else:
+                data = json.loads(request.body)
+                image_file = None
+
+            image_path = data.get('image', '')
+            if image_file:
+                from django.core.files.storage import FileSystemStorage
+                import os
+                from django.conf import settings
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'banners'))
+                filename = fs.save(image_file.name, image_file)
+                image_path = f"/media/banners/{filename}"
+
             banner = PromoBanner.objects.create(
                 title=data.get('title', ''),
                 subtitle=data.get('subtitle', ''),
                 description=data.get('description', ''),
-                image=data.get('image', ''),
+                image=image_path,
                 link=data.get('link', ''),
                 position=data.get('position', 'main'),
-                is_active=data.get('is_active', True),
+                product_id=data.get('product_id') or None,
+                is_active=data.get('is_active', 'true').lower() == 'true' if isinstance(data.get('is_active'), str) else data.get('is_active', True),
             )
             return JsonResponse({"status": "success", "id": banner.id, "message": "Banner created successfully."})
         except Exception as e:
@@ -863,14 +910,32 @@ def api_admin_banner_detail(request, pk):
         
     if request.method == 'PUT':
         try:
-            data = json.loads(request.body)
+            if request.content_type and request.content_type.startswith('multipart/form-data'):
+                data = request.POST
+                image_file = request.FILES.get('image')
+            else:
+                data = json.loads(request.body)
+                image_file = None
+
             if 'title' in data: banner.title = data['title']
             if 'subtitle' in data: banner.subtitle = data['subtitle']
             if 'description' in data: banner.description = data['description']
-            if 'image' in data: banner.image = data['image']
             if 'link' in data: banner.link = data['link']
             if 'position' in data: banner.position = data['position']
-            if 'is_active' in data: banner.is_active = data['is_active']
+            if 'product_id' in data: banner.product_id = data['product_id'] or None
+            if 'is_active' in data: 
+                val = data['is_active']
+                banner.is_active = val.lower() == 'true' if isinstance(val, str) else val
+
+            if image_file:
+                from django.core.files.storage import FileSystemStorage
+                import os
+                from django.conf import settings
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'banners'))
+                filename = fs.save(image_file.name, image_file)
+                banner.image = f"/media/banners/{filename}"
+            elif 'image' in data:
+                banner.image = data['image']
             
             banner.save()
             return JsonResponse({"status": "success", "message": "Banner updated successfully."})
@@ -880,3 +945,112 @@ def api_admin_banner_detail(request, pk):
     elif request.method == 'DELETE':
         banner.delete()
         return JsonResponse({"status": "success", "message": "Banner deleted successfully."})
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_validate_coupon(request):
+    try:
+        data = json.loads(request.body)
+        code = data.get('code', '').strip().upper()
+        if not code:
+            return JsonResponse({"error": "No coupon code provided"}, status=400)
+            
+        from django.utils import timezone
+        from .models import Coupon
+        
+        try:
+            coupon = Coupon.objects.get(code=code, is_active=True)
+            now = timezone.now()
+            
+            if coupon.valid_from and coupon.valid_from > now:
+                return JsonResponse({"error": "Coupon is not yet valid"}, status=400)
+            if coupon.valid_to and coupon.valid_to < now:
+                return JsonResponse({"error": "Coupon has expired"}, status=400)
+            if coupon.current_uses >= coupon.max_uses:
+                return JsonResponse({"error": "Coupon usage limit reached"}, status=400)
+                
+            return JsonResponse({
+                "valid": True, 
+                "discount_percentage": coupon.discount_percentage,
+                "code": coupon.code,
+                "message": f"{coupon.discount_percentage}% discount applied!"
+            })
+            
+        except Coupon.DoesNotExist:
+            return JsonResponse({"error": "Invalid coupon code"}, status=404)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_coupons(request):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    from .models import Coupon
+    from django.utils.dateparse import parse_datetime
+
+    if request.method == 'GET':
+        coupons = Coupon.objects.all().order_by('-id')
+        data = [{
+            "id": c.id,
+            "code": c.code,
+            "discount_percentage": c.discount_percentage,
+            "max_uses": c.max_uses,
+            "current_uses": c.current_uses,
+            "valid_from": c.valid_from.isoformat() if c.valid_from else None,
+            "valid_to": c.valid_to.isoformat() if c.valid_to else None,
+            "is_active": c.is_active,
+        } for c in coupons]
+        return JsonResponse({"coupons": data})
+        
+    elif request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            code = data.get('code', '').strip().upper()
+            if Coupon.objects.filter(code=code).exists():
+                return JsonResponse({"error": "Coupon code already exists"}, status=400)
+                
+            coupon = Coupon.objects.create(
+                code=code,
+                discount_percentage=int(data.get('discount_percentage', 0)),
+                max_uses=int(data.get('max_uses', 100)),
+                valid_from=parse_datetime(data.get('valid_from')) if data.get('valid_from') else None,
+                valid_to=parse_datetime(data.get('valid_to')) if data.get('valid_to') else None,
+                is_active=data.get('is_active', True),
+            )
+            return JsonResponse({"status": "success", "id": coupon.id, "message": "Coupon created successfully."})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_coupon_detail(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    from .models import Coupon
+    from django.utils.dateparse import parse_datetime
+    
+    try:
+        coupon = Coupon.objects.get(pk=pk)
+    except Coupon.DoesNotExist:
+        return JsonResponse({"error": "Coupon not found"}, status=404)
+        
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            if 'code' in data: coupon.code = data['code'].strip().upper()
+            if 'discount_percentage' in data: coupon.discount_percentage = int(data['discount_percentage'])
+            if 'max_uses' in data: coupon.max_uses = int(data['max_uses'])
+            if 'valid_from' in data: coupon.valid_from = parse_datetime(data['valid_from']) if data['valid_from'] else None
+            if 'valid_to' in data: coupon.valid_to = parse_datetime(data['valid_to']) if data['valid_to'] else None
+            if 'is_active' in data: coupon.is_active = data['is_active']
+            
+            coupon.save()
+            return JsonResponse({"status": "success", "message": "Coupon updated successfully."})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+            
+    elif request.method == 'DELETE':
+        coupon.delete()
+        return JsonResponse({"status": "success", "message": "Coupon deleted."})
