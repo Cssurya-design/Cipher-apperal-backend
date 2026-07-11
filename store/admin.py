@@ -8,6 +8,9 @@ from .models import (
     NewsletterSubscriber,
     Contact,
     UserLocation,
+    Category,
+    PromoBanner,
+    Coupon,
 )
 
 # Register your models here.
@@ -76,3 +79,20 @@ class UserLocationAdmin(admin.ModelAdmin):
     list_display = ("user", "city", "state", "country", "postal_code", "updated_at")
     search_fields = ("user__email", "city", "state", "country")
     list_filter = ("country", "updated_at")
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug")
+    search_fields = ("name", "slug")
+
+@admin.register(PromoBanner)
+class PromoBannerAdmin(admin.ModelAdmin):
+    list_display = ("position", "is_active", "title", "link_url")
+    list_filter = ("position", "is_active")
+    search_fields = ("title", "subtitle", "link_url")
+
+@admin.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ("code", "discount_percentage", "max_uses", "is_active", "valid_from", "valid_to")
+    list_filter = ("is_active",)
+    search_fields = ("code",)
