@@ -60,8 +60,8 @@ urlpatterns = [
     path('api/admin/coupons/', views_api.api_admin_coupons, name='api_admin_coupons'),
     path('api/admin/coupons/<int:pk>/', views_api.api_admin_coupon_detail, name='api_admin_coupon_detail'),
 
-    path('api/orders/<int:pk>/', views_api.api_order_detail, name='api_order_detail'),
-    path('api/orders/<int:pk>/cancel/', views_api.api_cancel_order, name='api_cancel_order'),
+    path('api/orders/<str:group_id>/', views_api.api_order_detail, name='api_order_detail'),
+    path('api/orders/<str:group_id>/cancel/', views_api.api_cancel_order, name='api_cancel_order'),
 
     # Admin APIs
     path('api/admin/orders/', views_api.api_admin_orders, name='api_admin_orders'),

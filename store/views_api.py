@@ -851,58 +851,88 @@ def api_admin_staff_remove(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def api_order_detail(request, pk):
-    """Get full detail for a single order belonging to the current user."""
-    try:
-        order = Order.objects.get(pk=pk, user=request.user)
-    except Order.DoesNotExist:
+def api_order_detail(request, group_id):
+    """Get full detail for a group order belonging to the current user."""
+    if group_id.startswith("ORD-"):
+        # Fallback for old orders
+        try:
+            order_id = int(group_id.split("-")[1])
+            orders = Order.objects.filter(id=order_id, user=request.user)
+        except ValueError:
+            return JsonResponse({"error": "Order not found"}, status=404)
+    else:
+        orders = Order.objects.filter(group_id=group_id, user=request.user)
+        
+    if not orders.exists():
         return JsonResponse({"error": "Order not found"}, status=404)
 
-    user_rating = 0
-    try:
-        pr = ProductRating.objects.get(user=request.user, product_name=order.product_name)
-        user_rating = pr.rating
-    except ProductRating.DoesNotExist:
-        pass
+    first_order = orders.first()
+    
+    items = []
+    total_price = sum(o.price * o.quantity for o in orders)
+    
+    for order in orders:
+        user_rating = 0
+        try:
+            pr = ProductRating.objects.get(user=request.user, product_name=order.product_name)
+            user_rating = pr.rating
+        except ProductRating.DoesNotExist:
+            pass
+
+        items.append({
+            "id": order.id,
+            "product_name": order.product_name,
+            "product_img": order.product_img,
+            "product_description": order.product_description,
+            "price": str(order.price),
+            "quantity": order.quantity,
+            "size": order.size,
+            "user_rating": user_rating,
+        })
 
     return JsonResponse({
-        "id": order.id,
-        "product_name": order.product_name,
-        "product_img": order.product_img,
-        "product_description": order.product_description,
-        "price": str(order.price),
-        "quantity": order.quantity,
-        "size": order.size,
-        "status": order.status,
-        "status_display": order.get_status_display(),
-        "payment_method": order.payment_method,
-        "payment_status": order.get_payment_status_display(),
-        "transaction_id": order.transaction_id,
-        "address": order.address,
-        "user_rating": user_rating,
-        "date": order.created_at.strftime("%b %d, %Y"),
-        "time": order.created_at.strftime("%I:%M %p"),
-        "updated_at": order.updated_at.strftime("%b %d, %Y %I:%M %p"),
+        "id": group_id,
+        "status": first_order.status,
+        "status_display": first_order.get_status_display(),
+        "payment_method": first_order.payment_method,
+        "payment_status": first_order.get_payment_status_display(),
+        "transaction_id": first_order.transaction_id,
+        "address": first_order.address,
+        "date": first_order.created_at.strftime("%b %d, %Y"),
+        "time": first_order.created_at.strftime("%I:%M %p"),
+        "updated_at": first_order.updated_at.strftime("%b %d, %Y %I:%M %p"),
+        "total_price": str(total_price),
+        "items": items,
     })
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def api_cancel_order(request, pk):
-    """Cancel a placed order (only if status is 'placed')."""
-    try:
-        order = Order.objects.get(pk=pk, user=request.user)
-    except Order.DoesNotExist:
+def api_cancel_order(request, group_id):
+    """Cancel a placed order group (only if status is 'placed')."""
+    if group_id.startswith("ORD-"):
+        try:
+            order_id = int(group_id.split("-")[1])
+            orders = Order.objects.filter(id=order_id, user=request.user)
+        except ValueError:
+            return JsonResponse({"error": "Order not found"}, status=404)
+    else:
+        orders = Order.objects.filter(group_id=group_id, user=request.user)
+        
+    if not orders.exists():
         return JsonResponse({"error": "Order not found"}, status=404)
 
-    if order.status != 'placed':
+    first_order = orders.first()
+    if first_order.status != 'placed':
         return JsonResponse(
-            {"error": "Order cannot be cancelled — it has already been processed."},
+            {"error": "Order cannot be cancelled - it has already been processed."},
             status=400
         )
 
-    order.status = 'cancelled'
-    order.save()
+    for order in orders:
+        order.status = 'cancelled'
+        order.save()
+        
     return JsonResponse({"status": "success", "message": "Order cancelled successfully."})
 
 @api_view(['GET'])
