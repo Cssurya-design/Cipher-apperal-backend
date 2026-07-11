@@ -55,9 +55,9 @@ class LoginHistoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "price", "category")
+    list_display = ("name", "price", "product_category", "category")
     search_fields = ("name",)
-    list_filter = ("category",)
+    list_filter = ("product_category", "category")
 
 
 @admin.register(NewsletterSubscriber)
