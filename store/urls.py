@@ -39,7 +39,6 @@ urlpatterns = [
     path('api/auth/google/', views_api.api_google_login, name='api_google_login'),
     
     # Order detail & cancel
-    path('api/user/locations/<int:pk>/', views_api.api_user_location_detail, name='api_user_location_detail'),
     path('api/banners/', views_api.api_get_banners, name='api_get_banners'),
     path('api/admin/banners/', views_api.api_admin_banners, name='api_admin_banners'),
     path('api/admin/banners/<int:pk>/', views_api.api_admin_banner_detail, name='api_admin_banner_detail'),
