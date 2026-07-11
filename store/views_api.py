@@ -629,6 +629,8 @@ def api_admin_orders(request):
         data.append({
             "id": o.id,
             "user_email": o.user.email,
+            "user_name": o.user.name,
+            "user_phone": o.user.phone,
             "product_name": o.product_name,
             "product_img": o.product_img,
             "price": str(o.price),
