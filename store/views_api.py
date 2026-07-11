@@ -392,7 +392,7 @@ def api_get_product(request, pk):
                 wishlist = Wishlist.objects.get(user=request.user)
                 if product in wishlist.products.all():
                     is_wishlisted = True
-            except Wishlist.DoesNotExist:
+            except Exception:
                 pass
 
         # Build reviews list
