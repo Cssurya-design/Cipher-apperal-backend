@@ -224,6 +224,7 @@ class Coupon(models.Model):
     is_active = models.BooleanField(default=True)
     show_on_popup = models.BooleanField(default=False)
     popup_text = models.CharField(max_length=255, blank=True, null=True)
+    used_by = models.ManyToManyField('CustomUser', blank=True, related_name='used_coupons')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

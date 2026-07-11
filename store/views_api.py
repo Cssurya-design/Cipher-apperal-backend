@@ -302,9 +302,12 @@ def api_save_order(request):
                 if (not coupon.valid_from or coupon.valid_from <= now) and \
                    (not coupon.valid_to or coupon.valid_to >= now) and \
                    coupon.current_uses < coupon.max_uses:
-                    discount_percentage = coupon.discount_percentage
-                    coupon.current_uses += 1
-                    coupon.save()
+                    
+                    if request.user.is_authenticated and not coupon.used_by.filter(id=request.user.id).exists():
+                        discount_percentage = coupon.discount_percentage
+                        coupon.current_uses += 1
+                        coupon.used_by.add(request.user)
+                        coupon.save()
             except Coupon.DoesNotExist:
                 pass
 
@@ -983,6 +986,9 @@ def api_validate_coupon(request):
                 return JsonResponse({"error": "Coupon has expired"}, status=400)
             if coupon.current_uses >= coupon.max_uses:
                 return JsonResponse({"error": "Coupon usage limit reached"}, status=400)
+                
+            if request.user.is_authenticated and coupon.used_by.filter(id=request.user.id).exists():
+                return JsonResponse({"error": "You have already used this coupon code"}, status=400)
                 
             return JsonResponse({
                 "valid": True, 
