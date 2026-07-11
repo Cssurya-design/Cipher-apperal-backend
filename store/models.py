@@ -81,7 +81,9 @@ class Order(models.Model):
         max_length=20, choices=[("Pending", "Pending Verification"), ("Verified", "Verified"), ("Failed", "Failed")], default="Pending"
     )
     transaction_id = models.CharField(max_length=100, blank=True, default="")
+    address = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.user.email} — {self.product_name}"

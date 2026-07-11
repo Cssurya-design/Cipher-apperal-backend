@@ -287,9 +287,18 @@ def api_save_order(request):
         items = data.get('items', [])
         payment_method = data.get('payment_method', 'UPI')
         transaction_id = data.get('transaction_id', '')
-        
+
+        # Capture user's saved delivery address
+        address_str = ''
+        try:
+            loc = UserLocation.objects.get(user=request.user)
+            parts = [loc.address_line1, loc.address_line2, loc.city, loc.state, loc.postal_code, loc.country]
+            address_str = ', '.join(p for p in parts if p)
+        except UserLocation.DoesNotExist:
+            pass
+
         from .models import Order
-        
+
         created_orders = []
         for item in items:
             order = Order.objects.create(
@@ -304,13 +313,14 @@ def api_save_order(request):
                 payment_method=payment_method,
                 payment_status='Pending',
                 transaction_id=transaction_id,
+                address=address_str,
             )
             created_orders.append({
                 "id": order.id,
                 "product_name": order.product_name,
                 "status": order.status,
             })
-        
+
         return JsonResponse({
             "status": "success",
             "message": "Order placed successfully!",
@@ -700,3 +710,60 @@ def api_admin_staff_remove(request):
             
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_order_detail(request, pk):
+    """Get full detail for a single order belonging to the current user."""
+    try:
+        order = Order.objects.get(pk=pk, user=request.user)
+    except Order.DoesNotExist:
+        return JsonResponse({"error": "Order not found"}, status=404)
+
+    user_rating = 0
+    try:
+        pr = ProductRating.objects.get(user=request.user, product_name=order.product_name)
+        user_rating = pr.rating
+    except ProductRating.DoesNotExist:
+        pass
+
+    return JsonResponse({
+        "id": order.id,
+        "product_name": order.product_name,
+        "product_img": order.product_img,
+        "product_description": order.product_description,
+        "price": str(order.price),
+        "quantity": order.quantity,
+        "size": order.size,
+        "status": order.status,
+        "status_display": order.get_status_display(),
+        "payment_method": order.payment_method,
+        "payment_status": order.get_payment_status_display(),
+        "transaction_id": order.transaction_id,
+        "address": order.address,
+        "user_rating": user_rating,
+        "date": order.created_at.strftime("%b %d, %Y"),
+        "time": order.created_at.strftime("%I:%M %p"),
+        "updated_at": order.updated_at.strftime("%b %d, %Y %I:%M %p"),
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_cancel_order(request, pk):
+    """Cancel a placed order (only if status is 'placed')."""
+    try:
+        order = Order.objects.get(pk=pk, user=request.user)
+    except Order.DoesNotExist:
+        return JsonResponse({"error": "Order not found"}, status=404)
+
+    if order.status != 'placed':
+        return JsonResponse(
+            {"error": "Order cannot be cancelled — it has already been processed."},
+            status=400
+        )
+
+    order.status = 'cancelled'
+    order.save()
+    return JsonResponse({"status": "success", "message": "Order cancelled successfully."})

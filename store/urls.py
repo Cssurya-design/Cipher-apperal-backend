@@ -38,6 +38,10 @@ urlpatterns = [
     path('api/location/', views_api.api_location, name='api_location'),
     path('api/auth/google/', views_api.api_google_login, name='api_google_login'),
     
+    # Order detail & cancel
+    path('api/orders/<int:pk>/', views_api.api_order_detail, name='api_order_detail'),
+    path('api/orders/<int:pk>/cancel/', views_api.api_cancel_order, name='api_cancel_order'),
+
     # Admin APIs
     path('api/admin/orders/', views_api.api_admin_orders, name='api_admin_orders'),
     path('api/admin/orders/<int:pk>/update/', views_api.api_admin_update_order, name='api_admin_update_order'),
