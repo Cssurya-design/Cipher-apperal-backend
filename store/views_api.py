@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.timezone import localtime
 from django.db.models import Q, Avg, Count
 from .models import Product, Contact, Order, ProductRating, UserLocation, ORDER_STATUS_CHOICES, PromoBanner, Category
 import requests
@@ -94,7 +95,7 @@ def api_user_profile(request):
             "age": user.age,
             "phone": user.phone or '',
             "profile_pic": profile_pic_url,
-            "date_joined": user.date_joined.strftime("%b %d, %Y"),
+            "date_joined": localtime(user.date_joined).strftime("%b %d, %Y"),
         })
     elif request.method == 'POST':
         try:
@@ -402,7 +403,7 @@ def api_get_product(request, pk):
                 "user_name": r.user.name or r.user.email.split('@')[0],
                 "rating": r.rating,
                 "review_text": r.review_text,
-                "date": r.created_at.strftime("%b %d, %Y"),
+                "date": localtime(r.created_at).strftime("%b %d, %Y"),
             })
 
         # Related products (same category or similar name)
@@ -456,7 +457,7 @@ def api_orders(request):
         if group_id not in groups_dict:
             groups_dict[group_id] = {
                 "group_id": group_id,
-                "date": o.created_at.strftime("%b %d, %Y"),
+                "date": localtime(o.created_at).strftime("%b %d, %Y"),
                 "payment_method": o.payment_method,
                 "payment_status": o.get_payment_status_display() if hasattr(o, 'get_payment_status_display') else o.payment_status,
                 "status": o.status,
@@ -629,7 +630,7 @@ def api_product_reviews(request, pk):
                 "user_name": r.user.name or r.user.email.split('@')[0],
                 "rating": r.rating,
                 "review_text": r.review_text,
-                "date": r.created_at.strftime("%b %d, %Y"),
+                "date": localtime(r.created_at).strftime("%b %d, %Y"),
             })
 
         avg_rating = sum(r.rating for r in ratings) / len(ratings) if ratings else 0
@@ -662,7 +663,7 @@ def api_admin_orders(request):
                 "user_email": o.user.email,
                 "user_name": o.user.name,
                 "user_phone": o.user.phone,
-                "date": o.created_at.strftime("%b %d, %Y - %H:%M"),
+                "date": localtime(o.created_at).strftime("%b %d, %Y - %H:%M"),
                 "payment_method": o.payment_method,
                 "payment_status": o.get_payment_status_display() if hasattr(o, "get_payment_status_display") else o.payment_status,
                 "status": o.status,
@@ -784,7 +785,7 @@ def api_admin_staff_list(request):
             "email": u.email,
             "name": u.name,
             "is_superuser": u.is_superuser,
-            "date_joined": u.date_joined.strftime("%b %d, %Y") if u.date_joined else "Unknown"
+            "date_joined": localtime(u.date_joined).strftime("%b %d, %Y") if u.date_joined else "Unknown"
         })
     return JsonResponse({"staff": data})
 
@@ -898,9 +899,9 @@ def api_order_detail(request, group_id):
         "payment_status": first_order.get_payment_status_display(),
         "transaction_id": first_order.transaction_id,
         "address": first_order.address,
-        "date": first_order.created_at.strftime("%b %d, %Y"),
-        "time": first_order.created_at.strftime("%I:%M %p"),
-        "updated_at": first_order.updated_at.strftime("%b %d, %Y %I:%M %p"),
+        "date": localtime(first_order.created_at).strftime("%b %d, %Y"),
+        "time": localtime(first_order.created_at).strftime("%I:%M %p"),
+        "updated_at": localtime(first_order.updated_at).strftime("%b %d, %Y %I:%M %p"),
         "total_price": str(total_price),
         "items": items,
     })
