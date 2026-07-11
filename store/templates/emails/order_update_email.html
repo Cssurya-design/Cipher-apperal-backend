@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Update - Cipher Apparel</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      color: #374151;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 40px 20px;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 30px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 30px;
+    }
+    .logo {
+      text-decoration: none;
+    }
+    .content {
+      line-height: 1.6;
+      font-size: 16px;
+      color: #4b5563;
+    }
+    .highlight {
+      color: #111827;
+      font-weight: 700;
+    }
+    .status-box {
+      background-color: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 30px 20px;
+      margin: 30px 0;
+      text-align: center;
+    }
+    .status-title {
+      color: #6b7280;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0 0 10px 0;
+      font-weight: 600;
+    }
+    .status-value {
+      color: #111827;
+      font-weight: 800;
+      font-size: 32px;
+      margin: 0 0 10px 0;
+    }
+    .status-desc {
+      color: #6b7280;
+      font-size: 15px;
+      margin: 0;
+    }
+    .order-items {
+      margin-top: 30px;
+      border-top: 1px solid #e5e7eb;
+      padding-top: 20px;
+    }
+    .items-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 15px;
+    }
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      align-items: center;
+    }
+    .item-image {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-right: 15px;
+      border: 1px solid #e5e7eb;
+    }
+    .item-details {
+      flex: 1;
+    }
+    .item-name {
+      color: #111827;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      font-size: 15px;
+    }
+    .item-meta {
+      color: #6b7280;
+      font-size: 13px;
+      margin: 0;
+    }
+    .button-container {
+      text-align: center;
+      margin: 40px 0;
+    }
+    .button {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 14px 32px;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 9999px;
+      font-size: 16px;
+      display: inline-block;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="{{ site_url }}" class="logo">
+        <img src="{{ site_url }}/Logo1.png" alt="Cipher Apparel" height="40" style="height: 40px; display: block; margin: 0 auto;" />
+      </a>
+    </div>
+    
+    <div class="content">
+      <p>Hi <span class="highlight">{{ name }}</span>,</p>
+      
+      <p>There's an update regarding your recent order with Cipher Apparel.</p>
+      
+      <div class="status-box">
+        <p class="status-title">Order #{{ group_id }}</p>
+        <h2 class="status-value">{{ status_display }}</h2>
+        <p class="status-desc">Your order's status has been updated.</p>
+      </div>
+
+      {% if items %}
+      <div class="order-items">
+        <h3 class="items-title">Items in this order:</h3>
+        {% for item in items %}
+        <div class="item-row">
+          {% if item.image %}
+          <img class="item-image" src="{% if 'http' in item.image %}{{ item.image }}{% elif item.image|slice:':1' == '/' %}https://cipherapparel.pythonanywhere.com{{ item.image }}{% else %}https://cipherapparel.pythonanywhere.com/media/{{ item.image }}{% endif %}" alt="{{ item.name }}" />
+          {% endif %}
+          <div class="item-details">
+            <h4 class="item-name">{{ item.name }}</h4>
+            <p class="item-meta">Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <div class="button-container">
+        <a href="{{ site_url }}/order-tracking?orderId={{ group_id }}" class="button">View Order Status</a>
+      </div>
+      
+      <p>If you have any questions, feel free to reply to this email.</p>
+      
+      <p>- The Cipher Apparel Team</p>
+    </div>
+    
+    <div class="footer">
+      &copy; {% now "Y" %} Cipher Apparel. All rights reserved.<br>
+      This email was sent to {{ email }}.
+    </div>
+  </div>
+</body>
+</html>

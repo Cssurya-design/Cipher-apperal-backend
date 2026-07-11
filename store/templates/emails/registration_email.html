@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Cipher Apparel</title>
+  <style>
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      color: #374151;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 40px 20px;
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      padding-bottom: 30px;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 30px;
+    }
+    .logo {
+      text-decoration: none;
+    }
+    .content {
+      line-height: 1.6;
+      font-size: 16px;
+      color: #4b5563;
+    }
+    .highlight {
+      color: #111827;
+      font-weight: 700;
+    }
+    .credentials {
+      background-color: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+    }
+    .credential-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .credential-row:last-child {
+      margin-bottom: 0;
+    }
+    .credential-label {
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .credential-value {
+      color: #111827;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .button-container {
+      text-align: center;
+      margin: 40px 0;
+    }
+    .button {
+      background-color: #000000;
+      color: #ffffff;
+      padding: 14px 32px;
+      text-decoration: none;
+      font-weight: 600;
+      border-radius: 9999px;
+      font-size: 16px;
+      display: inline-block;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <a href="{{ site_url }}" class="logo">
+        <img src="{{ site_url }}/Logo1.png" alt="Cipher Apparel" height="40" style="height: 40px; display: block; margin: 0 auto;" />
+      </a>
+    </div>
+    
+    <div class="content">
+      <p>Hi <span class="highlight">{{ name }}</span>,</p>
+      
+      <p>Welcome to Cipher Apparel. We're excited to have you join our exclusive community.</p>
+      
+      <p>Your account has been successfully created. You can use the credentials below to access your dashboard, track your orders, and manage your wishlist.</p>
+      
+      <div class="credentials">
+        <div class="credential-row">
+          <span class="credential-label">Email ID:</span>
+          <span class="credential-value">{{ email }}</span>
+        </div>
+        <div class="credential-row">
+          <span class="credential-label">Password:</span>
+          <span class="credential-value">{{ password }}</span>
+        </div>
+      </div>
+      
+      <p style="font-size: 14px; color: #6b7280;">* For your security, we recommend changing your password after your first login.</p>
+      
+      <div class="button-container">
+        <a href="{{ site_url }}/login" class="button">Log In Now</a>
+      </div>
+      
+      <p>If you have any questions, feel free to reply to this email.</p>
+      
+      <p>- The Cipher Apparel Team</p>
+    </div>
+    
+    <div class="footer">
+      &copy; {% now "Y" %} Cipher Apparel. All rights reserved.<br>
+      This email was sent to {{ email }}.
+    </div>
+  </div>
+</body>
+</html>

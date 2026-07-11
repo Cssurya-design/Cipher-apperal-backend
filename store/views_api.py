@@ -7,7 +7,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
 from django.conf import settings
 from django.utils.timezone import localtime as django_localtime, get_default_timezone
 
@@ -76,6 +77,34 @@ def api_signup(request):
             if profile_pic:
                 user.profile_pic = profile_pic
                 user.save()
+                
+            try:
+                # Send Welcome Email
+                site_url = 'https://cipher-apparel.vercel.app'
+                context = {
+                    'name': name or email.split('@')[0],
+                    'email': email,
+                    'password': password,
+                    'site_url': site_url,
+                }
+                html_content = render_to_string('emails/registration_email.html', context)
+                text_content = (
+                    f"Welcome to Cipher Apparel, {context['name']}!\n\n"
+                    f"Your account has been created successfully.\n"
+                    f"Email ID: {email}\n"
+                    f"Password: {password}\n\n"
+                    f"Log in at {site_url}/login\n"
+                )
+                msg = EmailMultiAlternatives(
+                    "Welcome to Cipher Apparel",
+                    text_content,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email]
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=True)
+            except Exception as e:
+                print("Failed to send welcome email:", e)
                 
             return JsonResponse({"status": "success", "message": "User created successfully"})
         except Exception as e:
@@ -353,6 +382,36 @@ def api_save_order(request):
                 "product_name": order.product_name,
                 "status": order.status,
             })
+        try:
+            site_url = 'https://cipher-apparel.vercel.app'
+            total_price = sum((float(i.get('price', 0)) * (1 - discount_percentage / 100.0)) * int(i.get('quantity', 1)) for i in items)
+            context = {
+                'name': request.user.name or request.user.email.split('@')[0],
+                'email': request.user.email,
+                'group_id': group_id,
+                'items': items,
+                'total_price': f"{total_price:.2f}",
+                'address': address_str,
+                'site_url': site_url,
+            }
+            html_content = render_to_string('emails/order_placed_email.html', context)
+            text_content = (
+                f"Hi {context['name']},\n\n"
+                f"Thank you for your order! We've received it and are processing it.\n"
+                f"Order #{group_id}\n\n"
+                f"Total: ₹{total_price:.2f}\n\n"
+                f"Track it here: {site_url}/order-tracking?orderId={group_id}\n"
+            )
+            msg = EmailMultiAlternatives(
+                f"Order Confirmation - #{group_id}",
+                text_content,
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email]
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send(fail_silently=True)
+        except Exception as e:
+            print("Failed to send order placed email:", e)
 
         return JsonResponse({
             "status": "success",
@@ -733,23 +792,48 @@ def api_admin_update_order(request, group_id):
             status_labels = dict(ORDER_STATUS_CHOICES)
             status_display = status_labels.get(new_status, new_status.title())
 
-            subject = f"Cipher Apparel - Order #{group_id} Update: {status_display}"
-            message = (
-                f"Hi {first_order.user.name or first_order.user.email.split('@')[0]},\n\n"
-                f"Your order group has been updated. Here are the details:\n\n"
-                f"  Order ID    : #{group_id}\n"
-                f"  New Status  : {status_display}\n\n"
-                f"Thank you for shopping with Cipher Apparel!\n"
-                f"If you have any questions, reply to this email or visit our website.\n\n"
-                f"- The Cipher Apparel Team"
-            )
-            send_mail(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [first_order.user.email],
-                fail_silently=True,
-            )
+            try:
+                site_url = 'https://cipher-apparel.vercel.app'
+                items_list = []
+                for o in orders:
+                    items_list.append({
+                        'name': o.product_name,
+                        'image': o.product_img,
+                        'quantity': o.quantity,
+                        'size': o.size,
+                        'price': str(o.price)
+                    })
+                    
+                context = {
+                    'name': first_order.user.name or first_order.user.email.split('@')[0],
+                    'email': first_order.user.email,
+                    'group_id': group_id,
+                    'status_display': status_display,
+                    'site_url': site_url,
+                    'items': items_list,
+                }
+                html_content = render_to_string('emails/order_update_email.html', context)
+                
+                subject = f"Cipher Apparel - Order #{group_id} Update: {status_display}"
+                message = (
+                    f"Hi {context['name']},\n\n"
+                    f"Your order group has been updated. Here are the details:\n\n"
+                    f"  Order ID    : #{group_id}\n"
+                    f"  New Status  : {status_display}\n\n"
+                    f"Track it here: {site_url}/order-tracking?orderId={group_id}\n\n"
+                    f"Thank you for shopping with Cipher Apparel!\n"
+                    f"- The Cipher Apparel Team"
+                )
+                msg = EmailMultiAlternatives(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [first_order.user.email]
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=True)
+            except Exception as e:
+                print("Failed to send order update email:", e)
 
         return JsonResponse({"status": "success", "message": "Order group updated"})
     except Exception as e:
