@@ -315,6 +315,9 @@ def api_save_order(request):
             pass
 
         from .models import Order
+        import uuid
+        
+        group_id = str(uuid.uuid4()).replace('-', '')[:8].upper()
 
         created_orders = []
         for item in items:
@@ -337,6 +340,7 @@ def api_save_order(request):
                 address=address_str,
                 coupon_code=coupon_code if discount_percentage > 0 else '',
                 discount_amount=discount_amount * item.get('quantity', 1),
+                group_id=group_id,
             )
             created_orders.append({
                 "id": order.id,
@@ -375,11 +379,20 @@ def api_get_product(request, pk):
         avg_rating = sum([r.rating for r in ratings]) / len(ratings) if ratings else 0
         
         user_rating = 0
+        is_wishlisted = False
         if request.user.is_authenticated:
             try:
                 ur = ProductRating.objects.get(user=request.user, product_name=product.name)
                 user_rating = ur.rating
             except ProductRating.DoesNotExist:
+                pass
+            
+            try:
+                from .models import Wishlist
+                wishlist = Wishlist.objects.get(user=request.user)
+                if product in wishlist.products.all():
+                    is_wishlisted = True
+            except Wishlist.DoesNotExist:
                 pass
 
         # Build reviews list
@@ -413,6 +426,7 @@ def api_get_product(request, pk):
             "avg_rating": round(avg_rating, 1),
             "user_rating": user_rating,
             "total_reviews": len(ratings),
+            "is_wishlisted": is_wishlisted,
             "reviews": reviews,
             "related_products": related_data,
         }
@@ -424,9 +438,10 @@ def api_get_product(request, pk):
 @permission_classes([IsAuthenticated])
 def api_orders(request):
     orders = Order.objects.filter(user=request.user).order_by("-created_at")
-    data = []
+    
+    groups_dict = {}
+    
     for o in orders:
-        # Get user's rating for this product
         user_rating = 0
         try:
             pr = ProductRating.objects.get(user=request.user, product_name=o.product_name)
@@ -434,7 +449,25 @@ def api_orders(request):
         except ProductRating.DoesNotExist:
             pass
 
-        data.append({
+        group_id = getattr(o, 'group_id', '')
+        if not group_id:
+            group_id = f"ORD-{o.id}"
+            
+        if group_id not in groups_dict:
+            groups_dict[group_id] = {
+                "group_id": group_id,
+                "date": o.created_at.strftime("%b %d, %Y"),
+                "payment_method": o.payment_method,
+                "payment_status": o.get_payment_status_display() if hasattr(o, 'get_payment_status_display') else o.payment_status,
+                "status": o.status,
+                "status_display": o.get_status_display() if hasattr(o, 'get_status_display') else o.status,
+                "total_price": 0.0,
+                "items": []
+            }
+            
+        groups_dict[group_id]["total_price"] += float(o.price) * o.quantity
+        
+        groups_dict[group_id]["items"].append({
             "id": o.id,
             "product_name": o.product_name,
             "product_img": o.product_img,
@@ -442,21 +475,20 @@ def api_orders(request):
             "price": str(o.price),
             "quantity": o.quantity,
             "size": o.size,
-            "status": o.status,
-            "status_display": o.get_status_display(),
-            "payment_method": o.payment_method,
-            "payment_status": o.get_payment_status_display(),
             "user_rating": user_rating,
-            "date": o.created_at.strftime("%b %d, %Y"),
         })
+        
+    for k in groups_dict:
+        groups_dict[k]["total_price"] = "{:.2f}".format(groups_dict[k]["total_price"])
+        
+    grouped_orders = list(groups_dict.values())
     
-    # Summary stats
-    from django.db.models import Sum
-    total_orders = orders.count()
-    total_spent = orders.aggregate(total=Sum('price'))['total'] or 0
+    from django.db.models import Sum, F
+    total_orders = len(grouped_orders)
+    total_spent = orders.annotate(total_price=F('price') * F('quantity')).aggregate(total=Sum('total_price'))['total'] or 0
 
     return JsonResponse({
-        "orders": data,
+        "grouped_orders": grouped_orders,
         "summary": {
             "total_orders": total_orders,
             "total_spent": str(total_spent),
@@ -617,79 +649,126 @@ def api_admin_orders(request):
         return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
         
     orders = Order.objects.all().order_by("-created_at")
-    data = []
+    groups_dict = {}
+    
     for o in orders:
-        data.append({
+        group_id = getattr(o, "group_id", "")
+        if not group_id:
+            group_id = f"ORD-{o.id}"
+            
+        if group_id not in groups_dict:
+            groups_dict[group_id] = {
+                "group_id": group_id,
+                "user_email": o.user.email,
+                "user_name": o.user.name,
+                "user_phone": o.user.phone,
+                "date": o.created_at.strftime("%b %d, %Y - %H:%M"),
+                "payment_method": o.payment_method,
+                "payment_status": o.get_payment_status_display() if hasattr(o, "get_payment_status_display") else o.payment_status,
+                "status": o.status,
+                "status_display": o.get_status_display() if hasattr(o, "get_status_display") else o.status,
+                "transaction_id": o.transaction_id,
+                "address": o.address,
+                "coupon_code": o.coupon_code,
+                "total_price": 0.0,
+                "items": []
+            }
+            
+        groups_dict[group_id]["total_price"] += float(o.price) * o.quantity
+        
+        groups_dict[group_id]["items"].append({
             "id": o.id,
-            "user_email": o.user.email,
-            "user_name": o.user.name,
-            "user_phone": o.user.phone,
             "product_name": o.product_name,
             "product_img": o.product_img,
             "price": str(o.price),
             "quantity": o.quantity,
             "size": o.size,
-            "status": o.status,
-            "status_display": o.get_status_display(),
-            "payment_method": o.payment_method,
-            "payment_status": o.get_payment_status_display() if hasattr(o, 'get_payment_status_display') else o.payment_status,
-            "transaction_id": o.transaction_id,
-            "address": o.address,
-            "coupon_code": o.coupon_code,
             "discount_amount": str(o.discount_amount),
-            "date": o.created_at.strftime("%b %d, %Y - %H:%M"),
         })
-    return JsonResponse({"orders": data})
+        
+    for k in groups_dict:
+        groups_dict[k]["total_price"] = "{:.2f}".format(groups_dict[k]["total_price"])
+        
+    grouped_orders = list(groups_dict.values())
+    return JsonResponse({"grouped_orders": grouped_orders})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def api_admin_update_order(request, pk):
+def api_admin_update_order(request, group_id):
     if not request.user.is_staff:
         return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
         
     try:
-        order = Order.objects.get(pk=pk)
-        data = json.loads(request.body)
+        if group_id.startswith("ORD-"):
+            # Fallback for old orders
+            order_id = int(group_id.split("-")[1])
+            orders = Order.objects.filter(id=order_id)
+        else:
+            orders = Order.objects.filter(group_id=group_id)
+            
+        if not orders.exists():
+            return JsonResponse({"error": "Order group not found"}, status=404)
 
-        old_status = order.status
+        data = json.loads(request.body)
+        
+        # Take the first order for email notification comparison
+        first_order = orders.first()
+        old_status = first_order.status
         new_status = data.get('status', old_status)
 
-        if 'status' in data:
-            order.status = data['status']
-        if 'payment_status' in data:
-            order.payment_status = data['payment_status']
+        for order in orders:
+            if 'status' in data:
+                order.status = data['status']
+            if 'payment_status' in data:
+                order.payment_status = data['payment_status']
+            order.save()
 
-        order.save()
-
-        # Send email notification to customer only when status actually changes
         if new_status != old_status:
             status_labels = dict(ORDER_STATUS_CHOICES)
             status_display = status_labels.get(new_status, new_status.title())
 
-            subject = f"Cipher Apparel — Order #{order.id} Update: {status_display}"
+            subject = f"Cipher Apparel - Order #{group_id} Update: {status_display}"
             message = (
-                f"Hi {order.user.name or order.user.email.split('@')[0]},\n\n"
-                f"Your order has been updated. Here are the details:\n\n"
-                f"  Order ID    : #{order.id}\n"
-                f"  Product     : {order.product_name}\n"
+                f"Hi {first_order.user.name or first_order.user.email.split('@')[0]},\n\n"
+                f"Your order group has been updated. Here are the details:\n\n"
+                f"  Order ID    : #{group_id}\n"
                 f"  New Status  : {status_display}\n\n"
                 f"Thank you for shopping with Cipher Apparel!\n"
                 f"If you have any questions, reply to this email or visit our website.\n\n"
-                f"— The Cipher Apparel Team"
+                f"- The Cipher Apparel Team"
             )
             send_mail(
                 subject,
                 message,
                 settings.DEFAULT_FROM_EMAIL,
-                [order.user.email],
+                [first_order.user.email],
                 fail_silently=True,
             )
 
-        return JsonResponse({"status": "success", "message": "Order updated"})
-    except Order.DoesNotExist:
-        return JsonResponse({"error": "Order not found"}, status=404)
+        return JsonResponse({"status": "success", "message": "Order group updated"})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_delete_order(request, group_id):
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Forbidden: Not an admin"}, status=403)
+        
+    try:
+        if group_id.startswith("ORD-"):
+            order_id = int(group_id.split("-")[1])
+            orders = Order.objects.filter(id=order_id)
+        else:
+            orders = Order.objects.filter(group_id=group_id)
+            
+        if not orders.exists():
+            return JsonResponse({"error": "Order group not found"}, status=404)
+            
+        orders.delete()
+        return JsonResponse({"status": "success", "message": "Order group deleted"})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)    
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -1104,19 +1183,6 @@ def api_public_coupons(request):
         
     return JsonResponse({"coupons": valid_coupons})
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def api_admin_delete_order(request, pk):
-    if not request.user.is_staff:
-        return JsonResponse({'error': 'Forbidden: Not an admin'}, status=403)
-    try:
-        order = Order.objects.get(pk=pk)
-        order.delete()
-        return JsonResponse({'message': 'Order deleted successfully'})
-    except Order.DoesNotExist:
-        return JsonResponse({'error': 'Order not found'}, status=404)
-
-
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -1268,3 +1334,41 @@ def api_admin_product_detail(request, pk):
             return JsonResponse({'message': 'Product updated'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)
+
+from .models import CompanySetting
+
+@api_view(['GET'])
+def api_get_settings(request):
+    """Public endpoint to fetch company settings."""
+    settings_qs = CompanySetting.objects.all()
+    data = {setting.key: setting.value for setting in settings_qs}
+    if "delivery_days" not in data:
+        data["delivery_days"] = "5"
+    return JsonResponse({"settings": data})
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_settings(request):
+    """Admin endpoint to get/update settings."""
+    user = request.user
+    if not user.is_staff:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+    if request.method == "GET":
+        settings_qs = CompanySetting.objects.all()
+        data = {setting.key: setting.value for setting in settings_qs}
+        if "delivery_days" not in data:
+            data["delivery_days"] = "5"
+        return JsonResponse({"settings": data})
+        
+    if request.method == "POST":
+        try:
+            data = request.data
+            for key, value in data.items():
+                CompanySetting.objects.update_or_create(
+                    key=key,
+                    defaults={"value": value}
+                )
+            return JsonResponse({"status": "success", "message": "Settings updated"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
