@@ -172,6 +172,7 @@ def api_wishlist(request):
                 "id": w.product.id,
                 "name": w.product.name,
                 "price": str(w.product.price),
+                "discount_price": str(w.product.discount_price) if w.product.discount_price else None,
                 "image": w.product.image,
             })
         return JsonResponse({"wishlist": data})
@@ -266,6 +267,7 @@ def api_get_products(request):
             "id": p.id,
             "name": p.name,
             "price": str(p.price),
+            "discount_price": str(p.discount_price) if p.discount_price else None,
             "image": p.image,
             "category": p.category,
             "description": p.description,
@@ -276,7 +278,7 @@ def api_get_products(request):
 
 def api_get_featured(request):
     products = Product.objects.all()[:4]
-    data = [{"id": p.id, "name": p.name, "price": str(p.price), "image": p.image} for p in products]
+    data = [{"id": p.id, "name": p.name, "price": str(p.price), "discount_price": str(p.discount_price) if p.discount_price else None, "image": p.image} for p in products]
     return JsonResponse({"featured": data})
 
 @api_view(['POST'])
@@ -399,6 +401,7 @@ def api_get_product(request, pk):
             "id": p.id,
             "name": p.name,
             "price": str(p.price),
+            "discount_price": str(p.discount_price) if p.discount_price else None,
             "image": p.image,
         } for p in related]
 
@@ -406,6 +409,7 @@ def api_get_product(request, pk):
             "id": product.id,
             "name": product.name,
             "price": str(product.price),
+            "discount_price": str(product.discount_price) if product.discount_price else None,
             "image": product.image,
             "category": product.category,
             "description": product.description,
@@ -835,7 +839,8 @@ def api_get_banners(request):
         "product": {
             "id": b.product.id,
             "name": b.product.name,
-            "price": b.product.price,
+            "price": str(b.product.price),
+            "discount_price": str(b.product.discount_price) if b.product.discount_price else None,
             "image": b.product.image
         } if b.product else None,
     } for b in banners]
@@ -892,6 +897,12 @@ def api_admin_banners(request):
                 product_id=data.get('product_id') or None,
                 is_active=data.get('is_active', 'true').lower() == 'true' if isinstance(data.get('is_active'), str) else data.get('is_active', True),
             )
+            
+            if banner.product and 'discount_price' in data:
+                dp = data.get('discount_price')
+                banner.product.discount_price = dp if dp else None
+                banner.product.save()
+                
             return JsonResponse({"status": "success", "id": banner.id, "message": "Banner created successfully."})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -938,6 +949,12 @@ def api_admin_banner_detail(request, pk):
                 banner.image = data['image']
             
             banner.save()
+            
+            if banner.product and 'discount_price' in data:
+                dp = data.get('discount_price')
+                banner.product.discount_price = dp if dp else None
+                banner.product.save()
+                
             return JsonResponse({"status": "success", "message": "Banner updated successfully."})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
