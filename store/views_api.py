@@ -963,7 +963,6 @@ def api_admin_banner_detail(request, pk):
         banner.delete()
         return JsonResponse({"status": "success", "message": "Banner deleted successfully."})
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def api_validate_coupon(request):
     try:
         data = json.loads(request.body)
