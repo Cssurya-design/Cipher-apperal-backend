@@ -9,7 +9,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime as django_localtime, get_default_timezone
+
+def localtime(dt):
+    if not dt: return dt
+    return django_localtime(dt, get_default_timezone())
+    
 from django.db.models import Q, Avg, Count
 from .models import Product, Contact, Order, ProductRating, UserLocation, ORDER_STATUS_CHOICES, PromoBanner, Category
 import requests
