@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q, Avg, Count
-from .models import Product, Contact, Order, ProductRating, UserLocation
+from .models import Product, Contact, Order, ProductRating, UserLocation, ORDER_STATUS_CHOICES
 import requests
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -620,13 +620,41 @@ def api_admin_update_order(request, pk):
     try:
         order = Order.objects.get(pk=pk)
         data = json.loads(request.body)
-        
+
+        old_status = order.status
+        new_status = data.get('status', old_status)
+
         if 'status' in data:
             order.status = data['status']
         if 'payment_status' in data:
             order.payment_status = data['payment_status']
-            
+
         order.save()
+
+        # Send email notification to customer only when status actually changes
+        if new_status != old_status:
+            status_labels = dict(ORDER_STATUS_CHOICES)
+            status_display = status_labels.get(new_status, new_status.title())
+
+            subject = f"Cipher Apparel — Order #{order.id} Update: {status_display}"
+            message = (
+                f"Hi {order.user.name or order.user.email.split('@')[0]},\n\n"
+                f"Your order has been updated. Here are the details:\n\n"
+                f"  Order ID    : #{order.id}\n"
+                f"  Product     : {order.product_name}\n"
+                f"  New Status  : {status_display}\n\n"
+                f"Thank you for shopping with Cipher Apparel!\n"
+                f"If you have any questions, reply to this email or visit our website.\n\n"
+                f"— The Cipher Apparel Team"
+            )
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [order.user.email],
+                fail_silently=True,
+            )
+
         return JsonResponse({"status": "success", "message": "Order updated"})
     except Order.DoesNotExist:
         return JsonResponse({"error": "Order not found"}, status=404)
