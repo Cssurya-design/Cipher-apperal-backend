@@ -239,3 +239,13 @@ class Coupon(models.Model):
 
     def __str__(self):
         return f"{self.code} - {self.discount_percentage}% OFF"
+
+
+class CompanySetting(models.Model):
+    key = models.CharField(max_length=100, unique=True, help_text="Setting key, e.g., 'estimated_delivery_time'")
+    value = models.TextField(help_text="Setting value, e.g., '4-5 business days'")
+    description = models.CharField(max_length=255, blank=True, help_text="Optional description of the setting")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.key}: {self.value}"

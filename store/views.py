@@ -20,6 +20,7 @@ from .models import (
     Contact,
     UserLocation,
     Wishlist,
+    CompanySetting,
 )
 
 # ─── AUTH DECORATOR ───────────────────────────────────────────────────────────
@@ -750,3 +751,86 @@ def toggle_wishlist(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
     return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+# ─── SETTINGS ─────────────────────────────────────────────────────────────────
+
+
+def get_settings(request):
+    """Public endpoint to fetch company settings."""
+    settings_qs = CompanySetting.objects.all()
+    data = {setting.key: setting.value for setting in settings_qs}
+    # Ensure default is available if not set
+    if "delivery_days" not in data:
+        data["delivery_days"] = "5"
+    return JsonResponse({"settings": data})
+
+
+@csrf_exempt
+@login_required_custom
+def admin_settings_view(request):
+    """Admin endpoint to get/update settings."""
+    user = get_logged_in_user(request)
+    if not user.is_staff:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+    if request.method == "GET":
+        settings_qs = CompanySetting.objects.all()
+        data = {setting.key: setting.value for setting in settings_qs}
+        if "delivery_days" not in data:
+            data["delivery_days"] = "5"
+        return JsonResponse({"settings": data})
+        
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            for key, value in data.items():
+                CompanySetting.objects.update_or_create(
+                    key=key,
+                    defaults={"value": value}
+                )
+            return JsonResponse({"status": "success", "message": "Settings updated"})
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+            
+    return JsonResponse({"error": "Method not allowed"}, status=405)
+
+
+# ─── DATABASE VIEWS ───────────────────────────────────────────────────────────
+
+from django.apps import apps
+from django.core.serializers import serialize
+
+@login_required_custom
+def admin_database_tables(request):
+    """Returns a list of all models in the 'store' app and their recent data."""
+    user = get_logged_in_user(request)
+    if not user.is_superuser:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+    store_models = apps.get_app_config('store').get_models()
+    tables_data = []
+    
+    for model in store_models:
+        model_name = model.__name__
+        # Exclude some models if necessary, or just return top 50 rows
+        queryset = model.objects.all().order_by('-id')[:50]
+        
+        # We need a clean representation of the rows
+        rows = []
+        for obj in queryset:
+            row_dict = {}
+            for field in model._meta.fields:
+                val = getattr(obj, field.name)
+                # Convert dates/images to string
+                row_dict[field.name] = str(val) if val is not None else ""
+            rows.append(row_dict)
+            
+        tables_data.append({
+            "name": model_name,
+            "fields": [f.name for f in model._meta.fields],
+            "rows": rows,
+            "total_count": model.objects.count()
+        })
+        
+    return JsonResponse({"tables": tables_data})
