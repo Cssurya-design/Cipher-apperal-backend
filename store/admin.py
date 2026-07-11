@@ -87,9 +87,9 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(PromoBanner)
 class PromoBannerAdmin(admin.ModelAdmin):
-    list_display = ("position", "is_active", "title", "link_url")
+    list_display = ("position", "is_active", "title", "link")
     list_filter = ("position", "is_active")
-    search_fields = ("title", "subtitle", "link_url")
+    search_fields = ("title", "subtitle", "link")
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
