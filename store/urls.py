@@ -45,6 +45,7 @@ urlpatterns = [
     
     # Coupons
     path('api/validate-coupon/', views_api.api_validate_coupon, name='api_validate_coupon'),
+    path('api/public-coupons/', views_api.api_public_coupons, name='api_public_coupons'),
     path('api/admin/coupons/', views_api.api_admin_coupons, name='api_admin_coupons'),
     path('api/admin/coupons/<int:pk>/', views_api.api_admin_coupon_detail, name='api_admin_coupon_detail'),
 

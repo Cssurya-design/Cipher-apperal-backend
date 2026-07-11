@@ -222,6 +222,8 @@ class Coupon(models.Model):
     valid_from = models.DateTimeField(null=True, blank=True)
     valid_to = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    show_on_popup = models.BooleanField(default=False)
+    popup_text = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

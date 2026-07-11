@@ -396,7 +396,7 @@ def api_get_product(request, pk):
             })
 
         # Related products (same category or similar name)
-        related = Product.objects.exclude(pk=pk).order_by('?')[:4]
+        related = Product.objects.exclude(pk=pk).order_by('-id')[:4]
         related_data = [{
             "id": p.id,
             "name": p.name,
@@ -1016,6 +1016,8 @@ def api_admin_coupons(request):
             "valid_from": c.valid_from.isoformat() if c.valid_from else None,
             "valid_to": c.valid_to.isoformat() if c.valid_to else None,
             "is_active": c.is_active,
+            "show_on_popup": c.show_on_popup,
+            "popup_text": c.popup_text,
         } for c in coupons]
         return JsonResponse({"coupons": data})
         
@@ -1033,6 +1035,8 @@ def api_admin_coupons(request):
                 valid_from=parse_datetime(data.get('valid_from')) if data.get('valid_from') else None,
                 valid_to=parse_datetime(data.get('valid_to')) if data.get('valid_to') else None,
                 is_active=data.get('is_active', True),
+                show_on_popup=data.get('show_on_popup', False),
+                popup_text=data.get('popup_text', ''),
             )
             return JsonResponse({"status": "success", "id": coupon.id, "message": "Coupon created successfully."})
         except Exception as e:
@@ -1061,6 +1065,8 @@ def api_admin_coupon_detail(request, pk):
             if 'valid_from' in data: coupon.valid_from = parse_datetime(data['valid_from']) if data['valid_from'] else None
             if 'valid_to' in data: coupon.valid_to = parse_datetime(data['valid_to']) if data['valid_to'] else None
             if 'is_active' in data: coupon.is_active = data['is_active']
+            if 'show_on_popup' in data: coupon.show_on_popup = data['show_on_popup']
+            if 'popup_text' in data: coupon.popup_text = data['popup_text']
             
             coupon.save()
             return JsonResponse({"status": "success", "message": "Coupon updated successfully."})
@@ -1070,3 +1076,25 @@ def api_admin_coupon_detail(request, pk):
     elif request.method == 'DELETE':
         coupon.delete()
         return JsonResponse({"status": "success", "message": "Coupon deleted."})
+
+@api_view(['GET'])
+def api_public_coupons(request):
+    from .models import Coupon
+    from django.utils import timezone
+    now = timezone.now()
+    
+    coupons = Coupon.objects.filter(is_active=True, show_on_popup=True)
+    valid_coupons = []
+    
+    for c in coupons:
+        if c.valid_from and c.valid_from > now: continue
+        if c.valid_to and c.valid_to < now: continue
+        if c.current_uses >= c.max_uses: continue
+        
+        valid_coupons.append({
+            "code": c.code,
+            "discount_percentage": c.discount_percentage,
+            "popup_text": c.popup_text,
+        })
+        
+    return JsonResponse({"coupons": valid_coupons})
