@@ -43,6 +43,17 @@ urlpatterns = [
     path('api/admin/banners/', views_api.api_admin_banners, name='api_admin_banners'),
     path('api/admin/banners/<int:pk>/', views_api.api_admin_banner_detail, name='api_admin_banner_detail'),
     
+    # Admin Products
+    path('api/admin/products/', views_api.api_admin_products, name='api_admin_products'),
+    path('api/admin/products/<int:pk>/', views_api.api_admin_product_detail, name='api_admin_product_detail'),
+
+    # Admin Categories
+    path('api/admin/categories/', views_api.api_admin_categories, name='api_admin_categories'),
+    path('api/admin/categories/<int:pk>/', views_api.api_admin_category_detail, name='api_admin_category_detail'),
+
+    # Public Categories
+    path('api/categories/', views_api.api_get_categories, name='api_get_categories'),
+
     # Coupons
     path('api/validate-coupon/', views_api.api_validate_coupon, name='api_validate_coupon'),
     path('api/public-coupons/', views_api.api_public_coupons, name='api_public_coupons'),

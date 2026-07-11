@@ -193,6 +193,14 @@ def api_wishlist(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
+
+@api_view(['GET'])
+def api_get_categories(request):
+    from store.models import Category
+    categories = Category.objects.all().order_by('name')
+    data = [{'id': c.id, 'name': c.name, 'slug': c.slug, 'image': c.image} for c in categories]
+    return JsonResponse({'categories': data})
+
 def api_get_products(request):
     category = request.GET.get('category')
     search = request.GET.get('search')
@@ -203,26 +211,11 @@ def api_get_products(request):
     products = Product.objects.all().order_by("id")
     
     if category:
-        cat_lower = category.lower()
-        if cat_lower == "t-shirts":
-            products = products.filter(
-                Q(name__icontains="t-shirt") | Q(name__icontains="tshirt")
-            )
-        elif cat_lower == "shirts":
-            products = (
-                products.filter(name__icontains="shirt")
-                .exclude(name__icontains="t-shirt")
-                .exclude(name__icontains="tshirt")
-            )
-        elif cat_lower == "pants":
-            products = products.filter(
-                Q(name__icontains="pant")
-                | Q(name__icontains="trouser")
-                | Q(name__icontains="jeans")
-            )
-        elif cat_lower == "shorts":
-            products = products.filter(name__icontains="short")
+        # Check if it matches a category slug
+        if Category.objects.filter(slug__iexact=category).exists():
+            products = products.filter(product_category__slug__iexact=category)
         else:
+            # Fallback to the old tag/label field
             products = products.filter(category=category)
             
     if search:
@@ -1124,3 +1117,154 @@ def api_admin_delete_order(request, pk):
         return JsonResponse({'error': 'Order not found'}, status=404)
 
 
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_categories(request):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from store.models import Category
+    from django.utils.text import slugify
+    
+    if request.method == 'GET':
+        categories = Category.objects.all().order_by('id')
+        data = [{'id': c.id, 'name': c.name, 'slug': c.slug, 'image': c.image} for c in categories]
+        return JsonResponse({'categories': data})
+        
+    elif request.method == 'POST':
+        try:
+            import json
+            data = request.POST if request.content_type.startswith('multipart/form-data') else json.loads(request.body)
+            name = data.get('name')
+            slug = data.get('slug') or slugify(name)
+            
+            image_file = request.FILES.get('image')
+            image_path = data.get('image', '')
+            if image_file:
+                from django.core.files.storage import FileSystemStorage
+                import os
+                from django.conf import settings
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'categories'))
+                filename = fs.save(image_file.name, image_file)
+                image_path = f"/media/categories/{filename}"
+                
+            cat = Category.objects.create(name=name, slug=slug, image=image_path)
+            return JsonResponse({'message': 'Category created', 'id': cat.id})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_category_detail(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    from store.models import Category
+    from django.utils.text import slugify
+    import json
+    
+    try:
+        category = Category.objects.get(pk=pk)
+    except Category.DoesNotExist:
+        return JsonResponse({'error': 'Not found'}, status=404)
+        
+    if request.method == 'DELETE':
+        category.delete()
+        return JsonResponse({'message': 'Category deleted'})
+        
+    elif request.method == 'POST':
+        try:
+            data = request.POST if request.content_type and request.content_type.startswith('multipart/form-data') else json.loads(request.body)
+            if 'name' in data:
+                category.name = data['name']
+                category.slug = data.get('slug') or slugify(data['name'])
+            if 'slug' in data:
+                category.slug = data['slug']
+                
+            image_file = request.FILES.get('image')
+            if image_file:
+                from django.core.files.storage import FileSystemStorage
+                import os
+                from django.conf import settings
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'categories'))
+                filename = fs.save(image_file.name, image_file)
+                category.image = f"/media/categories/{filename}"
+            elif 'image' in data:
+                category.image = data['image']
+                
+            category.save()
+            return JsonResponse({'message': 'Category updated'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def api_admin_products(request):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+    try:
+        data = request.POST if request.content_type.startswith('multipart/form-data') else json.loads(request.body)
+        image_file = request.FILES.get('image')
+        image_path = data.get('image', '')
+        
+        if image_file:
+            from django.core.files.storage import FileSystemStorage
+            import os
+            from django.conf import settings
+            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+            filename = fs.save(image_file.name, image_file)
+            image_path = f"/media/products/{filename}"
+
+        product = Product.objects.create(
+            name=data.get('name', ''),
+            price=data.get('price', 0),
+            discount_price=data.get('discount_price') or None,
+            product_category_id=data.get('product_category_id') or None,
+            category=data.get('category', 'regular'),
+            description=data.get('description', ''),
+            image=image_path
+        )
+        return JsonResponse({'message': 'Product created', 'id': product.id})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@api_view(['POST', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def api_admin_product_detail(request, pk):
+    if not request.user.is_staff:
+        return JsonResponse({'error': 'Forbidden'}, status=403)
+        
+    try:
+        product = Product.objects.get(pk=pk)
+    except Product.DoesNotExist:
+        return JsonResponse({'error': 'Not found'}, status=404)
+        
+    if request.method == 'DELETE':
+        product.delete()
+        return JsonResponse({'message': 'Product deleted'})
+        
+    elif request.method == 'POST':
+        try:
+            data = request.POST if request.content_type and request.content_type.startswith('multipart/form-data') else json.loads(request.body)
+            image_file = request.FILES.get('image')
+            
+            if image_file:
+                from django.core.files.storage import FileSystemStorage
+                import os
+                from django.conf import settings
+                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+                filename = fs.save(image_file.name, image_file)
+                product.image = f"/media/products/{filename}"
+            elif 'image' in data:
+                product.image = data['image']
+
+            if 'name' in data: product.name = data['name']
+            if 'price' in data: product.price = data['price']
+            if 'discount_price' in data: product.discount_price = data['discount_price'] or None
+            if 'product_category_id' in data: product.product_category_id = data['product_category_id'] or None
+            if 'category' in data: product.category = data['category']
+            if 'description' in data: product.description = data['description']
+            
+            product.save()
+            return JsonResponse({'message': 'Product updated'})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)

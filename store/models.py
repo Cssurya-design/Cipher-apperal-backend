@@ -91,11 +91,21 @@ class Order(models.Model):
         return f"{self.user.email} — {self.product_name}"
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
+    image = models.CharField(max_length=255, blank=True, null=True, help_text="Image filename or path")
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     image = models.CharField(max_length=255, help_text="Image filename or path")
+    product_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     category = models.CharField(
         max_length=50,
         choices=[
