@@ -433,6 +433,12 @@ def api_save_order(request):
             msg.send(fail_silently=False)
         except Exception as e:
             print("[EMAIL ERROR] Failed to send order placed email:", e)
+            return JsonResponse({
+                "status": "success",
+                "message": f"Order placed successfully, but email failed to send. Error: {str(e)}",
+                "group_id": group_id,
+                "orders": created_orders,
+            })
 
         return JsonResponse({
             "status": "success",
