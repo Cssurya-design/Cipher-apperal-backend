@@ -537,7 +537,7 @@ def api_orders(request):
                 "group_id": group_id,
                 "date": localtime(o.created_at).strftime("%b %d, %Y"),
                 "payment_method": o.payment_method,
-                "payment_status": o.get_payment_status_display() if hasattr(o, 'get_payment_status_display') else o.payment_status,
+                "payment_status": o.payment_status,  # raw: Pending/Verified/Failed
                 "status": o.status,
                 "status_display": o.get_status_display() if hasattr(o, 'get_status_display') else o.status,
                 "total_price": 0.0,
