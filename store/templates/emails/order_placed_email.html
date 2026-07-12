@@ -164,7 +164,7 @@
           <img class="item-image" src="{% if 'http' in item.image %}{{ item.image }}{% elif item.image|slice:':1' == '/' %}https://cipherapparel.pythonanywhere.com{{ item.image }}{% else %}https://cipherapparel.pythonanywhere.com/media/{{ item.image }}{% endif %}" alt="{{ item.name }}" />
           {% endif %}
           <div class="item-details">
-            <h4 class="item-name">{{ item.name|default:item.product_name }}</h4>
+            <h4 class="item-name">{% if item.name %}{{ item.name }}{% else %}{{ item.product_name }}{% endif %}</h4>
             <p class="item-meta">Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}</p>
           </div>
           <div class="item-price">₹{{ item.price }}</div>
@@ -183,7 +183,7 @@
       <p style="color: #111827; font-weight: 500;">{{ address|default:"No address provided" }}</p>
       
       <div class="button-container">
-        <a href="{{ site_url }}/order-tracking?orderId={{ group_id }}" class="button">Track Your Order</a>
+        <a href="{{ site_url }}/orders/{{ group_id }}" class="button">Track Your Order</a>
       </div>
       
       <p>If you need to make any changes to your order, please contact us immediately.</p>
