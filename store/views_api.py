@@ -111,30 +111,6 @@ def api_signup(request):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Method not allowed"}, status=405)
 
-@csrf_exempt
-def api_test_email(request):
-    try:
-        from django.core.mail import send_mail
-        from django.conf import settings
-        
-        send_mail(
-            "Cipher Apparel - Test Email",
-            "This is a test email from your PythonAnywhere server. If you received this, the email configuration is 100% working!",
-            settings.DEFAULT_FROM_EMAIL,
-            ["suryacs1222@gmail.com"],
-            fail_silently=False,
-        )
-        return JsonResponse({"status": "success", "message": "Test email sent successfully to suryacs1222@gmail.com!"})
-    except Exception as e:
-        pwd = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
-        pwd_prefix = pwd[:4] if pwd else 'EMPTY'
-        return JsonResponse({
-            "status": "error", 
-            "message": f"Email failed to send. Error: {str(e)}", 
-            "debug_password_start": pwd_prefix,
-            "debug_user": getattr(settings, 'EMAIL_HOST_USER', 'EMPTY')
-        })
-
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import parser_classes
 

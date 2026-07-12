@@ -23,7 +23,6 @@ urlpatterns = [
     path('api/token/', views_api.CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', views_api.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/signup/', views_api.api_signup, name='api_signup'),
-    path('api/test-email/', views_api.api_test_email, name='api_test_email'),
     path('api/user/', views_api.api_user_profile, name='api_user_profile'),
     path('api/contact/', views_api.api_contact, name='api_contact'),
     
