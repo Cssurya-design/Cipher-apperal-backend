@@ -307,9 +307,16 @@ def api_get_products(request):
     return JsonResponse({"products": data, "total": len(data)})
 
 def api_get_featured(request):
-    products = Product.objects.all()[:4]
-    data = [{"id": p.id, "name": p.name, "price": str(p.price), "discount_price": str(p.discount_price) if p.discount_price else None, "image": p.image} for p in products]
-    return JsonResponse({"featured": data})
+    featured_products = Product.objects.filter(category="featured")[:8]
+    new_arrival_products = Product.objects.filter(category="new_arrival")[:8]
+    
+    def serialize(p):
+        return {"id": p.id, "name": p.name, "price": str(p.price), "discount_price": str(p.discount_price) if p.discount_price else None, "image": p.image}
+        
+    return JsonResponse({
+        "featured": [serialize(p) for p in featured_products],
+        "new_arrivals": [serialize(p) for p in new_arrival_products]
+    })
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -414,7 +421,7 @@ def api_save_order(request):
                 f"Thank you for your order! We've received it and are processing it.\n"
                 f"Order #{group_id}\n\n"
                 f"Total: \u20b9{total_price:.2f}\n\n"
-                f"Track it here: {site_url}/order-tracking?orderId={group_id}\n"
+                f"Track it here: {site_url}/orders/{group_id}\n"
             )
             msg = EmailMultiAlternatives(
                 f"Order Confirmation - #{group_id}",
@@ -430,6 +437,7 @@ def api_save_order(request):
         return JsonResponse({
             "status": "success",
             "message": "Order placed successfully!",
+            "group_id": group_id,
             "orders": created_orders,
         })
     except Exception as e:
@@ -834,7 +842,7 @@ def api_admin_update_order(request, group_id):
                     f"Your order group has been updated. Here are the details:\n\n"
                     f"  Order ID    : #{group_id}\n"
                     f"  New Status  : {status_display}\n\n"
-                    f"Track it here: {site_url}/order-tracking?orderId={group_id}\n\n"
+                    f"Track it here: {site_url}/orders/{group_id}\n\n"
                     f"Thank you for shopping with Cipher Apparel!\n"
                     f"- The Cipher Apparel Team"
                 )
