@@ -170,7 +170,7 @@ def api_contact(request):
     if request.method == "POST":
         try:
             data = json.loads(request.body)
-            name = data.get('name')
+            name = data.get('full_name') or data.get('name')
             email = data.get('email')
             subject = data.get('subject')
             message = data.get('message')
