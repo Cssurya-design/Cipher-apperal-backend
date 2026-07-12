@@ -126,7 +126,14 @@ def api_test_email(request):
         )
         return JsonResponse({"status": "success", "message": "Test email sent successfully to suryacs1222@gmail.com!"})
     except Exception as e:
-        return JsonResponse({"status": "error", "message": f"Email failed to send. Error: {str(e)}"})
+        pwd = getattr(settings, 'EMAIL_HOST_PASSWORD', '')
+        pwd_prefix = pwd[:4] if pwd else 'EMPTY'
+        return JsonResponse({
+            "status": "error", 
+            "message": f"Email failed to send. Error: {str(e)}", 
+            "debug_password_start": pwd_prefix,
+            "debug_user": getattr(settings, 'EMAIL_HOST_USER', 'EMPTY')
+        })
 
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.decorators import parser_classes
