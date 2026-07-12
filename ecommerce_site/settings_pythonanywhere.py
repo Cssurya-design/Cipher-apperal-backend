@@ -169,7 +169,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "suryacs1222@gmail.com"
 EMAIL_HOST_PASSWORD = "ylxuxuqlvcifyfbr"
-DEFAULT_FROM_EMAIL = "suryacs1222@gmail.com"
+DEFAULT_FROM_EMAIL = "Cipher Apparel <suryacs1222@gmail.com>"
 
 # Auth
 LOGIN_URL = "/login/"
