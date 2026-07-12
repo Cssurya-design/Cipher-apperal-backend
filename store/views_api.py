@@ -102,9 +102,9 @@ def api_signup(request):
                     [email]
                 )
                 msg.attach_alternative(html_content, "text/html")
-                msg.send(fail_silently=True)
+                msg.send(fail_silently=False)
             except Exception as e:
-                print("Failed to send welcome email:", e)
+                print("[EMAIL ERROR] Failed to send welcome email:", e)
                 
             return JsonResponse({"status": "success", "message": "User created successfully"})
         except Exception as e:
@@ -299,6 +299,7 @@ def api_get_products(request):
             "discount_price": str(p.discount_price) if p.discount_price else None,
             "image": p.image,
             "category": p.category,
+            "product_category_name": p.product_category.name if p.product_category else p.category,
             "description": p.description,
             "avg_rating": round(avg_rating, 1),
             "total_reviews": total_reviews,
@@ -385,21 +386,34 @@ def api_save_order(request):
         try:
             site_url = 'https://cipher-apparel.vercel.app'
             total_price = sum((float(i.get('price', 0)) * (1 - discount_percentage / 100.0)) * int(i.get('quantity', 1)) for i in items)
+            # Enrich items with original price for email display
+            enriched_items = []
+            for i in items:
+                orig_price = float(i.get('price', 0))
+                disc_amt = orig_price * (discount_percentage / 100.0)
+                final_price = orig_price - disc_amt
+                enriched_items.append({
+                    **i,
+                    'original_price': f"{orig_price:.2f}",
+                    'discount_amount': f"{disc_amt:.2f}",
+                    'final_price': f"{final_price:.2f}",
+                })
             context = {
                 'name': request.user.name or request.user.email.split('@')[0],
                 'email': request.user.email,
                 'group_id': group_id,
-                'items': items,
+                'items': enriched_items,
                 'total_price': f"{total_price:.2f}",
                 'address': address_str,
                 'site_url': site_url,
+                'discount_percentage': discount_percentage,
             }
             html_content = render_to_string('emails/order_placed_email.html', context)
             text_content = (
                 f"Hi {context['name']},\n\n"
                 f"Thank you for your order! We've received it and are processing it.\n"
                 f"Order #{group_id}\n\n"
-                f"Total: ₹{total_price:.2f}\n\n"
+                f"Total: \u20b9{total_price:.2f}\n\n"
                 f"Track it here: {site_url}/order-tracking?orderId={group_id}\n"
             )
             msg = EmailMultiAlternatives(
@@ -409,9 +423,9 @@ def api_save_order(request):
                 [request.user.email]
             )
             msg.attach_alternative(html_content, "text/html")
-            msg.send(fail_silently=True)
+            msg.send(fail_silently=False)
         except Exception as e:
-            print("Failed to send order placed email:", e)
+            print("[EMAIL ERROR] Failed to send order placed email:", e)
 
         return JsonResponse({
             "status": "success",
@@ -729,7 +743,7 @@ def api_admin_orders(request):
                 "user_phone": o.user.phone,
                 "date": localtime(o.created_at).strftime("%b %d, %Y - %H:%M"),
                 "payment_method": o.payment_method,
-                "payment_status": o.get_payment_status_display() if hasattr(o, "get_payment_status_display") else o.payment_status,
+                "payment_status": o.payment_status,  # raw value: Pending/Verified/Failed
                 "status": o.status,
                 "status_display": o.get_status_display() if hasattr(o, "get_status_display") else o.status,
                 "transaction_id": o.transaction_id,
@@ -831,9 +845,9 @@ def api_admin_update_order(request, group_id):
                     [first_order.user.email]
                 )
                 msg.attach_alternative(html_content, "text/html")
-                msg.send(fail_silently=True)
+                msg.send(fail_silently=False)
             except Exception as e:
-                print("Failed to send order update email:", e)
+                print("[EMAIL ERROR] Failed to send order update email:", e)
 
         return JsonResponse({"status": "success", "message": "Order group updated"})
     except Exception as e:
@@ -977,6 +991,7 @@ def api_order_detail(request, group_id):
             "price": str(order.price),
             "quantity": order.quantity,
             "size": order.size,
+            "discount_amount": str(order.discount_amount) if hasattr(order, 'discount_amount') else "0",
             "user_rating": user_rating,
         })
 
@@ -985,11 +1000,12 @@ def api_order_detail(request, group_id):
         "status": first_order.status,
         "status_display": first_order.get_status_display(),
         "payment_method": first_order.payment_method,
-        "payment_status": first_order.get_payment_status_display(),
+        "payment_status": first_order.payment_status,  # raw: Pending/Verified/Failed
         "transaction_id": first_order.transaction_id,
         "address": first_order.address,
         "date": localtime(first_order.created_at).strftime("%b %d, %Y"),
         "time": localtime(first_order.created_at).strftime("%I:%M %p"),
+        "created_at_iso": first_order.created_at.isoformat(),  # for accurate JS date parsing
         "updated_at": localtime(first_order.updated_at).strftime("%b %d, %Y %I:%M %p"),
         "total_price": str(total_price),
         "items": items,

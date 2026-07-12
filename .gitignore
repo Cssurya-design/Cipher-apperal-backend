@@ -14,8 +14,6 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.egg-info/
-dist/
-build/
 
 # Database
 db.sqlite3
@@ -32,9 +30,9 @@ Thumbs.db
 
 # Node
 node_modules/
+frontend/node_modules/
 package-lock.json
+frontend/dist/
 
 # Media uploads
 media/
-frontend/
-.env
