@@ -578,7 +578,21 @@ def api_get_product(request, pk):
         # Fetch related models
         images_data = [{"id": img.id, "url": img.image} for img in product.images.all()]
         sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in product.sizes.filter(color__isnull=True)]
-        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()], "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()]} for c in product.colors.all()]
+        colors_data = []
+        for c in product.colors.all():
+            color_ratings = ProductRating.objects.filter(product_name=product.name, color=c.color)
+            color_total_reviews = color_ratings.count()
+            color_avg_rating = sum(r.rating for r in color_ratings) / color_total_reviews if color_total_reviews > 0 else 0
+            
+            colors_data.append({
+                "id": c.id, 
+                "color": c.color, 
+                "image": c.image, 
+                "images": [img.image for img in c.color_images.all()], 
+                "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()],
+                "avg_rating": round(color_avg_rating, 1),
+                "total_reviews": color_total_reviews,
+            })
         features_data = [f.feature_text for f in product.features.all()]
 
         data = {
