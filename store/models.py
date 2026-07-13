@@ -143,9 +143,17 @@ class ProductSize(models.Model):
 class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
     color = models.CharField(max_length=50)
+    image = models.CharField(max_length=255, blank=True, null=True, help_text="Image filename or path")
 
     def __str__(self):
         return f"{self.product.name} - {self.color}"
+
+class ProductColorImage(models.Model):
+    product_color = models.ForeignKey(ProductColor, on_delete=models.CASCADE, related_name='color_images')
+    image = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.product_color.product.name} - {self.product_color.color} - Image"
 
 class ProductFeature(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='features')

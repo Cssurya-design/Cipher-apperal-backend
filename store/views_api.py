@@ -294,7 +294,7 @@ def api_get_products(request):
 
         images_data = [{"id": img.id, "url": img.image} for img in p.images.all()]
         sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in p.sizes.all()]
-        colors_data = [{"id": c.id, "color": c.color} for c in p.colors.all()]
+        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()]} for c in p.colors.all()]
         features_data = [f.feature_text for f in p.features.all()]
 
         data.append({
@@ -367,7 +367,7 @@ def api_save_order(request):
         except UserLocation.DoesNotExist:
             pass
 
-        from .models import Order
+        from .models import Order, Product
         import uuid
         
         group_id = str(uuid.uuid4()).replace('-', '')[:8].upper()
@@ -377,6 +377,31 @@ def api_save_order(request):
             original_price = float(item.get('price', 0))
             discount_amount = original_price * (discount_percentage / 100.0)
             final_price = original_price - discount_amount
+            quantity = int(item.get('quantity', 1))
+            
+            # Deduct stock
+            product_id = item.get('product_id')
+            size_str = item.get('size', '')
+            if product_id:
+                try:
+                    product = Product.objects.get(id=product_id)
+                    # Deduct global product stock
+                    if product.stock is not None and product.stock > 0:
+                        product.stock = max(0, product.stock - quantity)
+                        product.save()
+                    
+                    # Deduct specific size stock if size is provided
+                    if size_str:
+                        from .models import ProductSize
+                        try:
+                            prod_size = product.sizes.get(size=size_str)
+                            if prod_size.stock > 0:
+                                prod_size.stock = max(0, prod_size.stock - quantity)
+                                prod_size.save()
+                        except ProductSize.DoesNotExist:
+                            pass
+                except Product.DoesNotExist:
+                    pass
 
             order = Order.objects.create(
                 user=request.user,
@@ -534,7 +559,7 @@ def api_get_product(request, pk):
         # Fetch related models
         images_data = [{"id": img.id, "url": img.image} for img in product.images.all()]
         sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in product.sizes.all()]
-        colors_data = [{"id": c.id, "color": c.color} for c in product.colors.all()]
+        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()]} for c in product.colors.all()]
         features_data = [f.feature_text for f in product.features.all()]
 
         data = {
@@ -1507,8 +1532,40 @@ def api_admin_products(request):
         if colors:
             try:
                 colors_data = json.loads(colors)
-                for color in colors_data:
-                    ProductColor.objects.create(product=product, color=color)
+                from store.models import ProductColorImage
+                for idx, color_info in enumerate(colors_data):
+                    color_name = color_info.get('color') if isinstance(color_info, dict) else color_info
+                    
+                    if color_name:
+                        color_obj = ProductColor.objects.create(product=product, color=color_name)
+                        
+                        existing_images = color_info.get('images', [])
+                        if isinstance(color_info, dict) and color_info.get('image') and not existing_images:
+                            existing_images.append(color_info.get('image'))
+                            
+                        for img_url in existing_images:
+                            ProductColorImage.objects.create(product_color=color_obj, image=img_url)
+
+                        color_img_files = request.FILES.getlist(f'color_images_{idx}')
+                        # Fallback for old single image field
+                        if not color_img_files:
+                            single_img = request.FILES.get(f'color_image_{idx}')
+                            if single_img: color_img_files = [single_img]
+
+                        for color_img_file in color_img_files:
+                            from django.core.files.storage import FileSystemStorage
+                            import os
+                            from django.conf import settings
+                            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+                            filename = fs.save(color_img_file.name, color_img_file)
+                            img_path = f"/media/products/{filename}"
+                            ProductColorImage.objects.create(product_color=color_obj, image=img_path)
+                        
+                        # Set thumbnail as first image
+                        first_img = color_obj.color_images.first()
+                        if first_img:
+                            color_obj.image = first_img.image
+                            color_obj.save()
             except Exception:
                 pass
 
@@ -1608,8 +1665,40 @@ def api_admin_product_detail(request, pk):
                 product.colors.all().delete()
                 try:
                     colors_data = json.loads(data['colors'])
-                    for color in colors_data:
-                        ProductColor.objects.create(product=product, color=color)
+                    from store.models import ProductColorImage
+                    for idx, color_info in enumerate(colors_data):
+                        color_name = color_info.get('color') if isinstance(color_info, dict) else color_info
+                        
+                        if color_name:
+                            color_obj = ProductColor.objects.create(product=product, color=color_name)
+                            
+                            existing_images = color_info.get('images', [])
+                            if isinstance(color_info, dict) and color_info.get('image') and not existing_images:
+                                existing_images.append(color_info.get('image'))
+                                
+                            for img_url in existing_images:
+                                ProductColorImage.objects.create(product_color=color_obj, image=img_url)
+
+                            color_img_files = request.FILES.getlist(f'color_images_{idx}')
+                            # Fallback for old single image field
+                            if not color_img_files:
+                                single_img = request.FILES.get(f'color_image_{idx}')
+                                if single_img: color_img_files = [single_img]
+
+                            for color_img_file in color_img_files:
+                                from django.core.files.storage import FileSystemStorage
+                                import os
+                                from django.conf import settings
+                                fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+                                filename = fs.save(color_img_file.name, color_img_file)
+                                img_path = f"/media/products/{filename}"
+                                ProductColorImage.objects.create(product_color=color_obj, image=img_path)
+                            
+                            # Set thumbnail as first image
+                            first_img = color_obj.color_images.first()
+                            if first_img:
+                                color_obj.image = first_img.image
+                                color_obj.save()
                 except Exception:
                     pass
 
@@ -1663,3 +1752,37 @@ def api_admin_settings(request):
             return JsonResponse({"status": "success", "message": "Settings updated"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_admin_users_list(request):
+    """Admin endpoint to fetch all users."""
+    if not request.user.is_staff:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+        
+    from .models import CustomUser
+    users = CustomUser.objects.all().order_by('-date_joined')
+    users_data = []
+    for u in users:
+        location_data = None
+        if hasattr(u, 'location'):
+            location_data = {
+                'city': u.location.city,
+                'state': u.location.state,
+                'country': u.location.country,
+                'address': u.location.address_line1,
+            }
+        
+        users_data.append({
+            'id': u.id,
+            'name': u.name,
+            'email': u.email,
+            'phone': u.phone,
+            'age': u.age,
+            'is_staff': u.is_staff,
+            'is_active': u.is_active,
+            'date_joined': u.date_joined.strftime("%B %d, %Y"),
+            'location': location_data
+        })
+    return JsonResponse({'users': users_data})

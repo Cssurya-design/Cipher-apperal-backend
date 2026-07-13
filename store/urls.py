@@ -70,6 +70,7 @@ urlpatterns = [
     path('api/admin/staff/', views_api.api_admin_staff_list, name='api_admin_staff_list'),
     path('api/admin/staff/add/', views_api.api_admin_staff_add, name='api_admin_staff_add'),
     path('api/admin/staff/remove/', views_api.api_admin_staff_remove, name='api_admin_staff_remove'),
+    path('api/admin/users/', views_api.api_admin_users_list, name='api_admin_users_list'),
     
     # Settings
     path('api/settings/', views_api.api_get_settings, name='api_get_settings'),
