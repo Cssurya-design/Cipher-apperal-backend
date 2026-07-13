@@ -204,12 +204,19 @@ def api_wishlist(request):
         wishlist = Wishlist.objects.filter(user=user)
         data = []
         for w in wishlist:
+            image = w.product.image
+            if w.color:
+                color_obj = w.product.colors.filter(color=w.color).first()
+                if color_obj and color_obj.image:
+                    image = color_obj.image
+
             data.append({
                 "id": w.product.id,
                 "name": w.product.name,
                 "price": str(w.product.price),
                 "discount_price": str(w.product.discount_price) if w.product.discount_price else None,
-                "image": w.product.image,
+                "image": image,
+                "color": w.color,
             })
         return JsonResponse({"wishlist": data})
         
@@ -217,10 +224,11 @@ def api_wishlist(request):
         try:
             data = json.loads(request.body)
             product_id = data.get('product_id')
+            color = data.get('color', '')
             from .models import Wishlist, Product
             product = Product.objects.get(id=product_id)
             
-            wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product)
+            wishlist_item, created = Wishlist.objects.get_or_create(user=user, product=product, color=color)
             if not created:
                 wishlist_item.delete()
                 return JsonResponse({"status": "removed"})
