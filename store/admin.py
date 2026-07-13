@@ -53,11 +53,30 @@ class LoginHistoryAdmin(admin.ModelAdmin):
     list_filter = ("login_time",)
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+
+class ProductSizeInline(admin.TabularInline):
+    model = ProductSize
+    extra = 1
+
+class ProductColorInline(admin.StackedInline):
+    model = ProductColor
+    extra = 1
+
+class ProductFeatureInline(admin.TabularInline):
+    model = ProductFeature
+    extra = 1
+
+from .models import ProductImage, ProductSize, ProductColor, ProductFeature, ProductColorImage
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("name", "price", "product_category", "category")
     search_fields = ("name",)
     list_filter = ("product_category", "category")
+    inlines = [ProductImageInline, ProductColorInline, ProductSizeInline, ProductFeatureInline]
 
 
 @admin.register(NewsletterSubscriber)

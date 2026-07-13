@@ -1616,7 +1616,9 @@ def api_admin_products(request):
                                 price=s_price,
                                 discount_price=s_discount
                             )
-            except Exception:
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
                 pass
                 
         # Update global fields based on all sizes (global + color specific)
@@ -1809,9 +1811,10 @@ def api_admin_product_detail(request, pk):
                                     price=s_price,
                                     discount_price=s_discount
                                 )
-                except Exception:
+                except Exception as e:
+                    import traceback
+                    traceback.print_exc()
                     pass
-
             if 'sizes' in data or 'colors' in data:
                 if min_price is not None:
                     product.price = min_price
