@@ -1497,13 +1497,13 @@ def api_admin_products(request):
 
         product = Product.objects.create(
             name=data.get('name', ''),
-            price=float(price_val) if price_val else 0.00,
-            discount_price=float(discount_val) if discount_val else None,
+            price=float(price_val) if price_val and price_val != 'None' else 0.00,
+            discount_price=float(discount_val) if discount_val and discount_val != 'None' else None,
             product_category_id=data.get('product_category_id') or None,
             category=data.get('category', 'regular'),
             description=data.get('description', ''),
             image=image_path,
-            stock=int(stock_val) if stock_val else 0
+            stock=int(stock_val) if stock_val and stock_val != 'None' else 0
         )
 
         from store.models import ProductImage, ProductSize, ProductColor, ProductFeature
@@ -1674,16 +1674,16 @@ def api_admin_product_detail(request, pk):
             if 'name' in data: product.name = data['name']
             if 'price' in data: 
                 val = str(data['price']).strip()
-                product.price = float(val) if val else 0.00
+                product.price = float(val) if val and val != 'None' else 0.00
             if 'discount_price' in data: 
                 val = str(data['discount_price']).strip()
-                product.discount_price = float(val) if val else None
+                product.discount_price = float(val) if val and val != 'None' else None
             if 'product_category_id' in data: product.product_category_id = data['product_category_id'] or None
             if 'category' in data: product.category = data['category']
             if 'description' in data: product.description = data['description']
             if 'stock' in data: 
                 val = str(data['stock']).strip()
-                product.stock = int(val) if val else 0
+                product.stock = int(val) if val and val != 'None' else 0
             
             product.save()
 
