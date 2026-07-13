@@ -292,6 +292,11 @@ def api_get_products(request):
             avg_rating = sum(r.rating for r in ratings) / ratings.count()
             total_reviews = ratings.count()
 
+        images_data = [{"id": img.id, "url": img.image} for img in p.images.all()]
+        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in p.sizes.all()]
+        colors_data = [{"id": c.id, "color": c.color} for c in p.colors.all()]
+        features_data = [f.feature_text for f in p.features.all()]
+
         data.append({
             "id": p.id,
             "name": p.name,
@@ -304,6 +309,10 @@ def api_get_products(request):
             "avg_rating": round(avg_rating, 1),
             "total_reviews": total_reviews,
             "stock": p.stock,
+            "images": images_data,
+            "sizes": sizes_data,
+            "colors": colors_data,
+            "features": features_data,
         })
     return JsonResponse({"products": data, "total": len(data)})
 
@@ -377,6 +386,7 @@ def api_save_order(request):
                 price=final_price,
                 quantity=item.get('quantity', 1),
                 size=item.get('size', ''),
+                color=item.get('color', ''),
                 status='placed',
                 payment_method=payment_method,
                 payment_status='Pending',
@@ -521,6 +531,12 @@ def api_get_product(request, pk):
             "image": p.image,
         } for p in related]
 
+        # Fetch related models
+        images_data = [{"id": img.id, "url": img.image} for img in product.images.all()]
+        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in product.sizes.all()]
+        colors_data = [{"id": c.id, "color": c.color} for c in product.colors.all()]
+        features_data = [f.feature_text for f in product.features.all()]
+
         data = {
             "id": product.id,
             "name": product.name,
@@ -536,6 +552,10 @@ def api_get_product(request, pk):
             "reviews": reviews,
             "related_products": related_data,
             "stock": product.stock,
+            "images": images_data,
+            "sizes": sizes_data,
+            "colors": colors_data,
+            "features": features_data,
         }
         return JsonResponse(data)
     except Product.DoesNotExist:
@@ -582,6 +602,7 @@ def api_orders(request):
             "price": str(o.price),
             "quantity": o.quantity,
             "size": o.size,
+            "color": getattr(o, 'color', ''),
             "user_rating": user_rating,
         })
         
@@ -1019,6 +1040,7 @@ def api_order_detail(request, group_id):
             "price": str(order.price),
             "quantity": order.quantity,
             "size": order.size,
+            "color": getattr(order, 'color', ''),
             "discount_amount": str(order.discount_amount) if hasattr(order, 'discount_amount') else "0",
             "user_rating": user_rating,
         })
@@ -1444,16 +1466,61 @@ def api_admin_products(request):
             filename = fs.save(image_file.name, image_file)
             image_path = f"/media/products/{filename}"
 
+        price_val = str(data.get('price', '')).strip()
+        discount_val = str(data.get('discount_price', '')).strip()
+        stock_val = str(data.get('stock', '')).strip()
+
         product = Product.objects.create(
             name=data.get('name', ''),
-            price=data.get('price', 0),
-            discount_price=data.get('discount_price') or None,
+            price=float(price_val) if price_val else 0.00,
+            discount_price=float(discount_val) if discount_val else None,
             product_category_id=data.get('product_category_id') or None,
             category=data.get('category', 'regular'),
             description=data.get('description', ''),
             image=image_path,
-            stock=int(data.get('stock', 10))
+            stock=int(stock_val) if stock_val else 0
         )
+
+        from store.models import ProductImage, ProductSize, ProductColor, ProductFeature
+        
+        images = request.FILES.getlist('images')
+        for img in images:
+            fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+            filename = fs.save(img.name, img)
+            ProductImage.objects.create(product=product, image=f"/media/products/{filename}")
+            
+        sizes = data.get('sizes')
+        if sizes:
+            try:
+                sizes_data = json.loads(sizes)
+                for size_info in sizes_data:
+                    val = str(size_info.get('stock', '')).strip()
+                    ProductSize.objects.create(
+                        product=product, 
+                        size=size_info.get('size', ''), 
+                        stock=int(val) if val else 0
+                    )
+            except Exception:
+                pass
+                
+        colors = data.get('colors')
+        if colors:
+            try:
+                colors_data = json.loads(colors)
+                for color in colors_data:
+                    ProductColor.objects.create(product=product, color=color)
+            except Exception:
+                pass
+
+        features = data.get('features')
+        if features:
+            try:
+                features_data = json.loads(features)
+                for feature in features_data:
+                    ProductFeature.objects.create(product=product, feature_text=feature)
+            except Exception:
+                pass
+
         return JsonResponse({'message': 'Product created', 'id': product.id})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
@@ -1489,14 +1556,72 @@ def api_admin_product_detail(request, pk):
                 product.image = data['image']
 
             if 'name' in data: product.name = data['name']
-            if 'price' in data: product.price = data['price']
-            if 'discount_price' in data: product.discount_price = data['discount_price'] or None
+            if 'price' in data: 
+                val = str(data['price']).strip()
+                product.price = float(val) if val else 0.00
+            if 'discount_price' in data: 
+                val = str(data['discount_price']).strip()
+                product.discount_price = float(val) if val else None
             if 'product_category_id' in data: product.product_category_id = data['product_category_id'] or None
             if 'category' in data: product.category = data['category']
             if 'description' in data: product.description = data['description']
-            if 'stock' in data: product.stock = int(data['stock'])
+            if 'stock' in data: 
+                val = str(data['stock']).strip()
+                product.stock = int(val) if val else 0
             
             product.save()
+
+            from store.models import ProductImage, ProductSize, ProductColor, ProductFeature
+
+            images = request.FILES.getlist('images')
+            if images:
+                for img in images:
+                    from django.core.files.storage import FileSystemStorage
+                    import os
+                    from django.conf import settings
+                    fs = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT, 'products'))
+                    filename = fs.save(img.name, img)
+                    ProductImage.objects.create(product=product, image=f"/media/products/{filename}")
+            
+            if 'delete_image_ids' in data:
+                try:
+                    delete_ids = json.loads(data['delete_image_ids'])
+                    ProductImage.objects.filter(id__in=delete_ids).delete()
+                except:
+                    pass
+
+            if 'sizes' in data:
+                product.sizes.all().delete()
+                try:
+                    sizes_data = json.loads(data['sizes'])
+                    for size_info in sizes_data:
+                        val = str(size_info.get('stock', '')).strip()
+                        ProductSize.objects.create(
+                            product=product, 
+                            size=size_info.get('size', ''), 
+                            stock=int(val) if val else 0
+                        )
+                except Exception:
+                    pass
+            
+            if 'colors' in data:
+                product.colors.all().delete()
+                try:
+                    colors_data = json.loads(data['colors'])
+                    for color in colors_data:
+                        ProductColor.objects.create(product=product, color=color)
+                except Exception:
+                    pass
+
+            if 'features' in data:
+                product.features.all().delete()
+                try:
+                    features_data = json.loads(data['features'])
+                    for feature in features_data:
+                        ProductFeature.objects.create(product=product, feature_text=feature)
+                except Exception:
+                    pass
+
             return JsonResponse({'message': 'Product updated'})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=400)

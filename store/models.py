@@ -70,7 +70,8 @@ class Order(models.Model):
     product_description = models.TextField(blank=True, default="")
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-    size = models.CharField(max_length=5, choices=SIZE_CHOICES, blank=True, default="")
+    size = models.CharField(max_length=20, blank=True, default="")
+    color = models.CharField(max_length=50, blank=True, default="")
     status = models.CharField(
         max_length=20, choices=ORDER_STATUS_CHOICES, default="placed"
     )
@@ -102,10 +103,10 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=255, blank=True, default="")
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=0.00)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    image = models.CharField(max_length=255, help_text="Image filename or path")
+    image = models.CharField(max_length=255, blank=True, default="", help_text="Image filename or path")
     product_category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     category = models.CharField(
         max_length=50,
@@ -117,10 +118,41 @@ class Product(models.Model):
         default="regular",
     )
     description = models.TextField(blank=True, null=True)
-    stock = models.PositiveIntegerField(default=10)
+    stock = models.PositiveIntegerField(default=0, blank=True, null=True)
 
     def __str__(self):
         return self.name
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.product.name} - Image"
+
+class ProductSize(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sizes')
+    size = models.CharField(max_length=20)
+    stock = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.size}"
+
+class ProductColor(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
+    color = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"{self.product.name} - {self.color}"
+
+class ProductFeature(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='features')
+    feature_text = models.CharField(max_length=500)
+
+    def __str__(self):
+        return f"{self.product.name} - Feature"
 
 
 class ProductRating(models.Model):
