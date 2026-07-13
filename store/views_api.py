@@ -1622,8 +1622,7 @@ def api_admin_products(request):
         # Update global fields based on all sizes (global + color specific)
         if min_price is not None:
             product.price = min_price
-        if min_discount is not None:
-            product.discount_price = min_discount
+        product.discount_price = min_discount
         product.stock = total_stock
         product.save()
 
@@ -1816,8 +1815,7 @@ def api_admin_product_detail(request, pk):
             if 'sizes' in data or 'colors' in data:
                 if min_price is not None:
                     product.price = min_price
-                if min_discount is not None:
-                    product.discount_price = min_discount
+                product.discount_price = min_discount
                 product.stock = total_stock
                 product.save()
                 
