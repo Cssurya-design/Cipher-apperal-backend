@@ -1528,9 +1528,9 @@ def api_admin_products(request):
                     price_val = str(size_info.get('price', '')).strip()
                     discount_val = str(size_info.get('discount_price', '')).strip()
                     
-                    s_stock = int(val) if val else 0
-                    s_price = float(price_val) if price_val else None
-                    s_discount = float(discount_val) if discount_val else None
+                    s_stock = int(val) if val and val != 'None' else 0
+                    s_price = float(price_val) if price_val and price_val != 'None' else None
+                    s_discount = float(discount_val) if discount_val and discount_val != 'None' else None
                     
                     total_stock += s_stock
                     if s_price is not None:
@@ -1596,9 +1596,9 @@ def api_admin_products(request):
                             price_val = str(size_info.get('price', '')).strip()
                             discount_val = str(size_info.get('discount_price', '')).strip()
                             
-                            s_stock = int(val) if val else 0
-                            s_price = float(price_val) if price_val else None
-                            s_discount = float(discount_val) if discount_val else None
+                            s_stock = int(val) if val and val != 'None' else 0
+                            s_price = float(price_val) if price_val and price_val != 'None' else None
+                            s_discount = float(discount_val) if discount_val and discount_val != 'None' else None
                             
                             total_stock += s_stock
                             if s_price is not None:
@@ -1720,9 +1720,9 @@ def api_admin_product_detail(request, pk):
                         price_val = str(size_info.get('price', '')).strip()
                         discount_val = str(size_info.get('discount_price', '')).strip()
                         
-                        s_stock = int(val) if val else 0
-                        s_price = float(price_val) if price_val else None
-                        s_discount = float(discount_val) if discount_val else None
+                        s_stock = int(val) if val and val != 'None' else 0
+                        s_price = float(price_val) if price_val and price_val != 'None' else None
+                        s_discount = float(discount_val) if discount_val and discount_val != 'None' else None
                         
                         total_stock += s_stock
                         if s_price is not None:
@@ -1791,9 +1791,9 @@ def api_admin_product_detail(request, pk):
                                 price_val = str(size_info.get('price', '')).strip()
                                 discount_val = str(size_info.get('discount_price', '')).strip()
                                 
-                                s_stock = int(val) if val else 0
-                                s_price = float(price_val) if price_val else None
-                                s_discount = float(discount_val) if discount_val else None
+                                s_stock = int(val) if val and val != 'None' else 0
+                                s_price = float(price_val) if price_val and price_val != 'None' else None
+                                s_discount = float(discount_val) if discount_val and discount_val != 'None' else None
                                 
                                 total_stock += s_stock
                                 if s_price is not None:
