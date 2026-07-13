@@ -391,7 +391,12 @@ def api_save_order(request):
 
         created_orders = []
         for item in items:
-            original_price = float(item.get('price', 0))
+            # Handle None price gracefully
+            raw_price = item.get('price', 0)
+            if raw_price is None or str(raw_price).lower() == 'none':
+                original_price = 0.0
+            else:
+                original_price = float(raw_price)
             discount_amount = original_price * (discount_percentage / 100.0)
             final_price = original_price - discount_amount
             quantity = int(item.get('quantity', 1))
@@ -445,11 +450,16 @@ def api_save_order(request):
             })
         try:
             site_url = 'https://cipher-apparel.vercel.app'
-            total_price = sum((float(i.get('price', 0)) * (1 - discount_percentage / 100.0)) * int(i.get('quantity', 1)) for i in items)
+            def safe_float(val):
+                if val is None or str(val).lower() == 'none':
+                    return 0.0
+                return float(val)
+
+            total_price = sum((safe_float(i.get('price', 0)) * (1 - discount_percentage / 100.0)) * int(i.get('quantity', 1)) for i in items)
             # Enrich items with original price for email display
             enriched_items = []
             for i in items:
-                orig_price = float(i.get('price', 0))
+                orig_price = safe_float(i.get('price', 0))
                 disc_amt = orig_price * (discount_percentage / 100.0)
                 final_price = orig_price - disc_amt
                 enriched_items.append({
@@ -512,6 +522,8 @@ def api_save_order(request):
             "orders": created_orders,
         })
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({"error": str(e)}, status=400)
 
 @csrf_exempt
