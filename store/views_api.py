@@ -294,7 +294,23 @@ def api_get_products(request):
 
         images_data = [{"id": img.id, "url": img.image} for img in p.images.all()]
         sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in p.sizes.filter(color__isnull=True)]
-        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()], "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()]} for c in p.colors.all()]
+        colors_data = []
+        for c in p.colors.all():
+            color_ratings = ratings.filter(color=c.color)
+            color_avg_rating = 0
+            color_total_reviews = color_ratings.count()
+            if color_total_reviews > 0:
+                color_avg_rating = sum(r.rating for r in color_ratings) / color_total_reviews
+            
+            colors_data.append({
+                "id": c.id, 
+                "color": c.color, 
+                "image": c.image, 
+                "images": [img.image for img in c.color_images.all()],
+                "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()],
+                "avg_rating": round(color_avg_rating, 1),
+                "total_reviews": color_total_reviews,
+            })
         features_data = [f.feature_text for f in p.features.all()]
 
         data.append({
@@ -304,6 +320,7 @@ def api_get_products(request):
             "discount_price": str(p.discount_price) if p.discount_price else None,
             "image": p.image,
             "category": p.category,
+            "product_category_id": p.product_category_id if p.product_category else None,
             "product_category_name": p.product_category.name if p.product_category else p.category,
             "description": p.description,
             "avg_rating": round(avg_rating, 1),
@@ -519,13 +536,14 @@ def api_get_product(request, pk):
         ratings = ProductRating.objects.filter(product_name=product.name)
         avg_rating = sum([r.rating for r in ratings]) / len(ratings) if ratings else 0
         
-        user_rating = 0
+        user_ratings = {}
         is_wishlisted = False
         if request.user.is_authenticated:
             try:
-                ur = ProductRating.objects.get(user=request.user, product_name=product.name)
-                user_rating = ur.rating
-            except ProductRating.DoesNotExist:
+                urs = ProductRating.objects.filter(user=request.user, product_name=product.name)
+                for ur in urs:
+                    user_ratings[ur.color] = ur.rating
+            except Exception:
                 pass
             
             try:
@@ -543,6 +561,7 @@ def api_get_product(request, pk):
                 "user_name": r.user.name or r.user.email.split('@')[0],
                 "rating": r.rating,
                 "review_text": r.review_text,
+                "color": r.color,
                 "date": localtime(r.created_at).strftime("%b %d, %Y"),
             })
 
@@ -571,7 +590,7 @@ def api_get_product(request, pk):
             "category": product.category,
             "description": product.description,
             "avg_rating": round(avg_rating, 1),
-            "user_rating": user_rating,
+            "user_ratings": user_ratings,
             "total_reviews": len(ratings),
             "is_wishlisted": is_wishlisted,
             "reviews": reviews,
@@ -596,7 +615,7 @@ def api_orders(request):
     for o in orders:
         user_rating = 0
         try:
-            pr = ProductRating.objects.get(user=request.user, product_name=o.product_name)
+            pr = ProductRating.objects.get(user=request.user, product_name=o.product_name, color=o.color)
             user_rating = pr.rating
         except ProductRating.DoesNotExist:
             pass
@@ -654,12 +673,14 @@ def api_rate_product(request):
     try:
         data = json.loads(request.body)
         product_name = data.get("product_name", "")
+        color = data.get("color", "")
         rating = int(data.get("rating", 0))
         review_text = data.get("review_text", "")
         if 1 <= rating <= 5 and product_name:
             obj, created = ProductRating.objects.update_or_create(
                 user=request.user,
                 product_name=product_name,
+                color=color,
                 defaults={"rating": rating, "review_text": review_text},
             )
             return JsonResponse({"status": "success", "rating": obj.rating})
@@ -782,6 +803,7 @@ def api_product_reviews(request, pk):
                 "user_name": r.user.name or r.user.email.split('@')[0],
                 "rating": r.rating,
                 "review_text": r.review_text,
+                "color": r.color,
                 "date": localtime(r.created_at).strftime("%b %d, %Y"),
             })
 

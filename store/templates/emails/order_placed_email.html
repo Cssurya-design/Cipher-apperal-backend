@@ -165,7 +165,10 @@
           {% endif %}
           <div class="item-details">
             <h4 class="item-name">{% if item.name %}{{ item.name }}{% else %}{{ item.product_name }}{% endif %}</h4>
-            <p class="item-meta">Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}</p>
+            <p class="item-meta">Qty: {{ item.quantity }}{% if item.size %} | Size: {{ item.size }}{% endif %}{% if item.color %} | Color: {{ item.color }}{% endif %}</p>
+            {% if item.description or item.product_description %}
+            <p class="item-meta" style="font-size: 11px; margin-top: 4px; color: #9ca3af;">{{ item.description|default:item.product_description|truncatewords:15 }}</p>
+            {% endif %}
           </div>
           <div class="item-price">₹{{ item.price }}</div>
         </div>

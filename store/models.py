@@ -171,15 +171,17 @@ class ProductRating(models.Model):
         CustomUser, on_delete=models.CASCADE, related_name="ratings"
     )
     product_name = models.CharField(max_length=255)
+    color = models.CharField(max_length=50, blank=True, default="")
     rating = models.PositiveSmallIntegerField(default=0)  # 1-5
     review_text = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "product_name")
+        unique_together = ("user", "product_name", "color")
 
     def __str__(self):
-        return f"{self.user.email} — {self.product_name} — {self.rating}★"
+        color_str = f" ({self.color})" if self.color else ""
+        return f"{self.user.email} — {self.product_name}{color_str} — {self.rating}★"
 
 
 class LoginHistory(models.Model):
