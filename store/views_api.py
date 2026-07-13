@@ -424,11 +424,19 @@ def api_save_order(request):
                     if size_str:
                         from .models import ProductSize
                         try:
-                            prod_size = product.sizes.get(size=size_str)
-                            if prod_size.stock > 0:
+                            color_str = item.get('color', '')
+                            prod_sizes = product.sizes.filter(size=size_str)
+                            if color_str:
+                                prod_sizes = prod_sizes.filter(color__color__iexact=color_str)
+                            
+                            prod_size = prod_sizes.first()
+                            if not prod_size:
+                                prod_size = product.sizes.filter(size=size_str).first()
+                                
+                            if prod_size and prod_size.stock > 0:
                                 prod_size.stock = max(0, prod_size.stock - quantity)
                                 prod_size.save()
-                        except ProductSize.DoesNotExist:
+                        except Exception:
                             pass
                 except Product.DoesNotExist:
                     pass
