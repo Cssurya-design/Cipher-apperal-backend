@@ -82,25 +82,33 @@ for product in products:
         image=product.image
     )
     
-    # Add sizes
-    sizes = ['S', 'M', 'L', 'XL', 'XXL']
+    sizes = [
+        {'size': 'S', 'stock': 10, 'price': 299.00},
+        {'size': 'M', 'stock': 20, 'price': 399.00},
+        {'size': 'L', 'stock': 30, 'price': 499.00},
+        {'size': 'XL', 'stock': 40, 'price': 599.00},
+        {'size': 'XXL', 'stock': 50, 'price': 699.00},
+    ]
     
-    base_price = product.price if product.price else 299.0
+    total_stock = 0
+    min_price = None
     
-    for idx, s in enumerate(sizes):
-        # Adding some price progression as seen in the screenshots
-        size_price = float(base_price) + (idx * 100) if base_price == 299.0 else base_price
-        
+    for size_info in sizes:
         ProductSize.objects.create(
             product=product,
             color=color_obj,
-            size=s,
-            stock=10, 
-            price=size_price,
+            size=size_info['size'],
+            stock=size_info['stock'],
+            price=size_info['price'],
             discount_price=None
         )
+        total_stock += size_info['stock']
+        if min_price is None or size_info['price'] < min_price:
+            min_price = size_info['price']
     
-    product.stock = 50
+    product.stock = total_stock
+    if min_price is not None:
+        product.price = min_price
     product.save()
     print(f"Processed {product.name} -> {color_name} (5 sizes added)")
 
