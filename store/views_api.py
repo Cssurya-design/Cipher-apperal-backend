@@ -293,8 +293,8 @@ def api_get_products(request):
             total_reviews = ratings.count()
 
         images_data = [{"id": img.id, "url": img.image} for img in p.images.all()]
-        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in p.sizes.all()]
-        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()]} for c in p.colors.all()]
+        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in p.sizes.filter(color__isnull=True)]
+        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()], "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()]} for c in p.colors.all()]
         features_data = [f.feature_text for f in p.features.all()]
 
         data.append({
@@ -558,8 +558,8 @@ def api_get_product(request, pk):
 
         # Fetch related models
         images_data = [{"id": img.id, "url": img.image} for img in product.images.all()]
-        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in product.sizes.all()]
-        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()]} for c in product.colors.all()]
+        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in product.sizes.filter(color__isnull=True)]
+        colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()], "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()]} for c in product.colors.all()]
         features_data = [f.feature_text for f in product.features.all()]
 
         data = {
@@ -1514,13 +1514,15 @@ def api_admin_products(request):
             filename = fs.save(img.name, img)
             ProductImage.objects.create(product=product, image=f"/media/products/{filename}")
             
+
+        total_stock = 0
+        min_price = None
+        min_discount = None
+        
         sizes = data.get('sizes')
         if sizes:
             try:
                 sizes_data = json.loads(sizes)
-                total_stock = 0
-                min_price = None
-                min_discount = None
                 for size_info in sizes_data:
                     val = str(size_info.get('stock', '')).strip()
                     price_val = str(size_info.get('price', '')).strip()
@@ -1545,14 +1547,6 @@ def api_admin_products(request):
                         price=s_price,
                         discount_price=s_discount
                     )
-                
-                # Update global fields based on sizes
-                if min_price is not None:
-                    product.price = min_price
-                if min_discount is not None:
-                    product.discount_price = min_discount
-                product.stock = total_stock
-                product.save()
             except Exception:
                 pass
                 
@@ -1575,7 +1569,6 @@ def api_admin_products(request):
                             ProductColorImage.objects.create(product_color=color_obj, image=img_url)
 
                         color_img_files = request.FILES.getlist(f'color_images_{idx}')
-                        # Fallback for old single image field
                         if not color_img_files:
                             single_img = request.FILES.get(f'color_image_{idx}')
                             if single_img: color_img_files = [single_img]
@@ -1589,18 +1582,50 @@ def api_admin_products(request):
                             img_path = f"/media/products/{filename}"
                             ProductColorImage.objects.create(product_color=color_obj, image=img_path)
                         
-                        # Set thumbnail as first image
                         first_img = color_obj.color_images.first()
                         if first_img:
                             color_obj.image = first_img.image
                             color_obj.save()
-                            
-                            # Fallback primary image
                             if not product.image:
                                 product.image = first_img.image
                                 product.save()
+                                
+                        color_sizes = color_info.get('sizes', [])
+                        for size_info in color_sizes:
+                            val = str(size_info.get('stock', '')).strip()
+                            price_val = str(size_info.get('price', '')).strip()
+                            discount_val = str(size_info.get('discount_price', '')).strip()
+                            
+                            s_stock = int(val) if val else 0
+                            s_price = float(price_val) if price_val else None
+                            s_discount = float(discount_val) if discount_val else None
+                            
+                            total_stock += s_stock
+                            if s_price is not None:
+                                if min_price is None or s_price < min_price:
+                                    min_price = s_price
+                            if s_discount is not None:
+                                if min_discount is None or s_discount < min_discount:
+                                    min_discount = s_discount
+                                    
+                            ProductSize.objects.create(
+                                product=product, 
+                                color=color_obj,
+                                size=size_info.get('size', ''), 
+                                stock=s_stock,
+                                price=s_price,
+                                discount_price=s_discount
+                            )
             except Exception:
                 pass
+                
+        # Update global fields based on all sizes (global + color specific)
+        if min_price is not None:
+            product.price = min_price
+        if min_discount is not None:
+            product.discount_price = min_discount
+        product.stock = total_stock
+        product.save()
 
         features = data.get('features')
         if features:
@@ -1680,13 +1705,15 @@ def api_admin_product_detail(request, pk):
                 except:
                     pass
 
+
+            total_stock = 0
+            min_price = None
+            min_discount = None
+
             if 'sizes' in data:
-                product.sizes.all().delete()
+                product.sizes.filter(color__isnull=True).delete()
                 try:
                     sizes_data = json.loads(data['sizes'])
-                    total_stock = 0
-                    min_price = None
-                    min_discount = None
                     for size_info in sizes_data:
                         val = str(size_info.get('stock', '')).strip()
                         price_val = str(size_info.get('price', '')).strip()
@@ -1711,19 +1738,14 @@ def api_admin_product_detail(request, pk):
                             price=s_price,
                             discount_price=s_discount
                         )
-                        
-                    # Update global fields based on sizes
-                    if min_price is not None:
-                        product.price = min_price
-                    if min_discount is not None:
-                        product.discount_price = min_discount
-                    product.stock = total_stock
-                    product.save()
                 except Exception:
                     pass
             
             if 'colors' in data:
                 product.colors.all().delete()
+                # Also delete color specific sizes (already cascade deleted if color deleted, but let's be safe)
+                product.sizes.filter(color__isnull=False).delete()
+                
                 try:
                     colors_data = json.loads(data['colors'])
                     from store.models import ProductColorImage
@@ -1741,7 +1763,6 @@ def api_admin_product_detail(request, pk):
                                 ProductColorImage.objects.create(product_color=color_obj, image=img_url)
 
                             color_img_files = request.FILES.getlist(f'color_images_{idx}')
-                            # Fallback for old single image field
                             if not color_img_files:
                                 single_img = request.FILES.get(f'color_image_{idx}')
                                 if single_img: color_img_files = [single_img]
@@ -1755,20 +1776,53 @@ def api_admin_product_detail(request, pk):
                                 img_path = f"/media/products/{filename}"
                                 ProductColorImage.objects.create(product_color=color_obj, image=img_path)
                             
-                            # Set thumbnail as first image
                             first_img = color_obj.color_images.first()
                             if first_img:
                                 color_obj.image = first_img.image
                                 color_obj.save()
-                                
-                                # Fallback primary image
                                 if not product.image:
                                     product.image = first_img.image
                                     product.save()
+                                    
+                            color_sizes = color_info.get('sizes', [])
+                            for size_info in color_sizes:
+                                val = str(size_info.get('stock', '')).strip()
+                                price_val = str(size_info.get('price', '')).strip()
+                                discount_val = str(size_info.get('discount_price', '')).strip()
+                                
+                                s_stock = int(val) if val else 0
+                                s_price = float(price_val) if price_val else None
+                                s_discount = float(discount_val) if discount_val else None
+                                
+                                total_stock += s_stock
+                                if s_price is not None:
+                                    if min_price is None or s_price < min_price:
+                                        min_price = s_price
+                                if s_discount is not None:
+                                    if min_discount is None or s_discount < min_discount:
+                                        min_discount = s_discount
+                                        
+                                ProductSize.objects.create(
+                                    product=product, 
+                                    color=color_obj,
+                                    size=size_info.get('size', ''), 
+                                    stock=s_stock,
+                                    price=s_price,
+                                    discount_price=s_discount
+                                )
                 except Exception:
                     pass
 
+            if 'sizes' in data or 'colors' in data:
+                if min_price is not None:
+                    product.price = min_price
+                if min_discount is not None:
+                    product.discount_price = min_discount
+                product.stock = total_stock
+                product.save()
+                
             if 'features' in data:
+
                 product.features.all().delete()
                 try:
                     features_data = json.loads(data['features'])

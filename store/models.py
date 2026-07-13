@@ -134,13 +134,14 @@ class ProductImage(models.Model):
 
 class ProductSize(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sizes')
+    color = models.ForeignKey('ProductColor', on_delete=models.CASCADE, related_name='sizes', null=True, blank=True)
     size = models.CharField(max_length=20)
     stock = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     discount_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
-        return f"{self.product.name} - {self.size}"
+        return f"{self.product.name} - {self.color.color if self.color else 'Global'} - {self.size}"
 
 class ProductColor(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='colors')
