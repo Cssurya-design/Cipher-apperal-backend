@@ -11,6 +11,10 @@ from .models import (
     Category,
     PromoBanner,
     Coupon,
+    ProductImage,
+    ProductSize,
+    ProductColor,
+    ProductFeature,
 )
 
 # Register your models here.
