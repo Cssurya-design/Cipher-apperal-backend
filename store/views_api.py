@@ -303,6 +303,7 @@ def api_get_products(request):
             "description": p.description,
             "avg_rating": round(avg_rating, 1),
             "total_reviews": total_reviews,
+            "stock": p.stock,
         })
     return JsonResponse({"products": data, "total": len(data)})
 
@@ -405,6 +406,17 @@ def api_save_order(request):
                     'discount_amount': f"{disc_amt:.2f}",
                     'final_price': f"{final_price:.2f}",
                 })
+            from .models import CompanySetting
+            from datetime import timedelta
+            try:
+                delivery_setting = CompanySetting.objects.get(key="delivery_days")
+                delivery_days = int(delivery_setting.value)
+            except (CompanySetting.DoesNotExist, ValueError):
+                delivery_days = 5
+            
+            est_date = timezone.now() + timedelta(days=delivery_days)
+            est_delivery_str = est_date.strftime("%A, %d %B")
+
             context = {
                 'name': request.user.name or request.user.email.split('@')[0],
                 'email': request.user.email,
@@ -414,6 +426,7 @@ def api_save_order(request):
                 'address': address_str,
                 'site_url': site_url,
                 'discount_percentage': discount_percentage,
+                'estimated_delivery': est_delivery_str,
             }
             html_content = render_to_string('emails/order_placed_email.html', context)
             text_content = (
@@ -522,6 +535,7 @@ def api_get_product(request, pk):
             "is_wishlisted": is_wishlisted,
             "reviews": reviews,
             "related_products": related_data,
+            "stock": product.stock,
         }
         return JsonResponse(data)
     except Product.DoesNotExist:
@@ -1437,7 +1451,8 @@ def api_admin_products(request):
             product_category_id=data.get('product_category_id') or None,
             category=data.get('category', 'regular'),
             description=data.get('description', ''),
-            image=image_path
+            image=image_path,
+            stock=int(data.get('stock', 10))
         )
         return JsonResponse({'message': 'Product created', 'id': product.id})
     except Exception as e:
@@ -1479,6 +1494,7 @@ def api_admin_product_detail(request, pk):
             if 'product_category_id' in data: product.product_category_id = data['product_category_id'] or None
             if 'category' in data: product.category = data['category']
             if 'description' in data: product.description = data['description']
+            if 'stock' in data: product.stock = int(data['stock'])
             
             product.save()
             return JsonResponse({'message': 'Product updated'})

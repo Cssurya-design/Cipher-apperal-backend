@@ -117,6 +117,7 @@ class Product(models.Model):
         default="regular",
     )
     description = models.TextField(blank=True, null=True)
+    stock = models.PositiveIntegerField(default=10)
 
     def __str__(self):
         return self.name
