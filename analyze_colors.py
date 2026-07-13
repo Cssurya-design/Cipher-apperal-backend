@@ -68,12 +68,24 @@ for product in products:
     img_path = os.path.join(base_media_dir, img_name)
     
     color_name = get_dominant_color(img_path)
-    if product.name.lower().find('red') != -1: color_name = 'Red'
-    if product.name.lower().find('blue') != -1: color_name = 'Blue'
-    if product.name.lower().find('black') != -1: color_name = 'Black'
-    if product.name.lower().find('white') != -1: color_name = 'White'
-    if product.name.lower().find('green') != -1: color_name = 'Green'
-    if product.name.lower().find('yellow') != -1: color_name = 'Yellow'
+    color_mapping = [
+        'Light Blue', 'Denim Blue', 'Navy Blue', 'Navy', 'Blue',
+        'Pastel Pink', 'Pink',
+        'Light Khaki', 'Khaki',
+        'Dark Green', 'Olive Green', 'Olive', 'Green',
+        'Dark Grey', 'Charcoal', 'Grey', 'Gray',
+        'Maroon', 'Red',
+        'Orange', 'Bright Yellow', 'Yellow',
+        'Purple', 'Beige', 'Tan', 'Brown',
+        'White', 'Black', 
+        'Colorful', 'Color Block', 'Desert Camo'
+    ]
+    for cm in color_mapping:
+        if cm.lower() in product.name.lower():
+            color_name = cm
+            if color_name == 'Gray': color_name = 'Grey'
+            if color_name in ['Colorful', 'Color Block']: color_name = 'Multicolor'
+            break
     
     # Create the single color variant
     color_obj = ProductColor.objects.create(
