@@ -1594,6 +1594,11 @@ def api_admin_products(request):
                         if first_img:
                             color_obj.image = first_img.image
                             color_obj.save()
+                            
+                            # Fallback primary image
+                            if not product.image:
+                                product.image = first_img.image
+                                product.save()
             except Exception:
                 pass
 
@@ -1755,6 +1760,11 @@ def api_admin_product_detail(request, pk):
                             if first_img:
                                 color_obj.image = first_img.image
                                 color_obj.save()
+                                
+                                # Fallback primary image
+                                if not product.image:
+                                    product.image = first_img.image
+                                    product.save()
                 except Exception:
                     pass
 
