@@ -293,7 +293,7 @@ def api_get_products(request):
             total_reviews = ratings.count()
 
         images_data = [{"id": img.id, "url": img.image} for img in p.images.all()]
-        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock} for s in p.sizes.all()]
+        sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in p.sizes.all()]
         colors_data = [{"id": c.id, "color": c.color, "image": c.image, "images": [img.image for img in c.color_images.all()]} for c in p.colors.all()]
         features_data = [f.feature_text for f in p.features.all()]
 
@@ -1518,13 +1518,41 @@ def api_admin_products(request):
         if sizes:
             try:
                 sizes_data = json.loads(sizes)
+                total_stock = 0
+                min_price = None
+                min_discount = None
                 for size_info in sizes_data:
                     val = str(size_info.get('stock', '')).strip()
+                    price_val = str(size_info.get('price', '')).strip()
+                    discount_val = str(size_info.get('discount_price', '')).strip()
+                    
+                    s_stock = int(val) if val else 0
+                    s_price = float(price_val) if price_val else None
+                    s_discount = float(discount_val) if discount_val else None
+                    
+                    total_stock += s_stock
+                    if s_price is not None:
+                        if min_price is None or s_price < min_price:
+                            min_price = s_price
+                    if s_discount is not None:
+                        if min_discount is None or s_discount < min_discount:
+                            min_discount = s_discount
+                            
                     ProductSize.objects.create(
                         product=product, 
                         size=size_info.get('size', ''), 
-                        stock=int(val) if val else 0
+                        stock=s_stock,
+                        price=s_price,
+                        discount_price=s_discount
                     )
+                
+                # Update global fields based on sizes
+                if min_price is not None:
+                    product.price = min_price
+                if min_discount is not None:
+                    product.discount_price = min_discount
+                product.stock = total_stock
+                product.save()
             except Exception:
                 pass
                 
@@ -1651,13 +1679,41 @@ def api_admin_product_detail(request, pk):
                 product.sizes.all().delete()
                 try:
                     sizes_data = json.loads(data['sizes'])
+                    total_stock = 0
+                    min_price = None
+                    min_discount = None
                     for size_info in sizes_data:
                         val = str(size_info.get('stock', '')).strip()
+                        price_val = str(size_info.get('price', '')).strip()
+                        discount_val = str(size_info.get('discount_price', '')).strip()
+                        
+                        s_stock = int(val) if val else 0
+                        s_price = float(price_val) if price_val else None
+                        s_discount = float(discount_val) if discount_val else None
+                        
+                        total_stock += s_stock
+                        if s_price is not None:
+                            if min_price is None or s_price < min_price:
+                                min_price = s_price
+                        if s_discount is not None:
+                            if min_discount is None or s_discount < min_discount:
+                                min_discount = s_discount
+                                
                         ProductSize.objects.create(
                             product=product, 
                             size=size_info.get('size', ''), 
-                            stock=int(val) if val else 0
+                            stock=s_stock,
+                            price=s_price,
+                            discount_price=s_discount
                         )
+                        
+                    # Update global fields based on sizes
+                    if min_price is not None:
+                        product.price = min_price
+                    if min_discount is not None:
+                        product.discount_price = min_discount
+                    product.stock = total_stock
+                    product.save()
                 except Exception:
                     pass
             
