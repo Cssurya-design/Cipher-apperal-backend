@@ -362,6 +362,9 @@ def api_save_order(request):
         payment_method = data.get('payment_method', 'UPI')
         transaction_id = data.get('transaction_id', '')
         coupon_code = data.get('coupon_code', '').strip().upper()
+        delivery_fee = float(data.get('delivery_fee', 0))
+        gst_amount = float(data.get('gst_amount', 0))
+        gst_percentage = float(data.get('gst_percentage', 0))
 
         discount_percentage = 0
         from django.utils import timezone
@@ -457,6 +460,9 @@ def api_save_order(request):
                 address=address_str,
                 coupon_code=coupon_code if discount_percentage > 0 else '',
                 discount_amount=discount_amount * item.get('quantity', 1),
+                delivery_fee=delivery_fee,
+                gst_amount=gst_amount,
+                gst_percentage=gst_percentage,
                 group_id=group_id,
             )
             created_orders.append({
@@ -472,6 +478,7 @@ def api_save_order(request):
                 return float(val)
 
             total_price = sum((safe_float(i.get('price', 0)) * (1 - discount_percentage / 100.0)) * int(i.get('quantity', 1)) for i in items)
+            final_total = total_price + delivery_fee + gst_amount
             # Enrich items with original price for email display
             enriched_items = []
             for i in items:
@@ -501,6 +508,9 @@ def api_save_order(request):
                 'group_id': group_id,
                 'items': enriched_items,
                 'total_price': f"{total_price:.2f}",
+                'delivery_fee': f"{delivery_fee:.2f}",
+                'gst_amount': f"{gst_amount:.2f}",
+                'final_total': f"{final_total:.2f}",
                 'address': address_str,
                 'site_url': site_url,
                 'discount_percentage': discount_percentage,
@@ -511,7 +521,7 @@ def api_save_order(request):
                 f"Hi {context['name']},\n\n"
                 f"Thank you for your order! We've received it and are processing it.\n"
                 f"Order #{group_id}\n\n"
-                f"Total: \u20b9{total_price:.2f}\n\n"
+                f"Total: \u20b9{final_total:.2f}\n\n"
                 f"Track it here: {site_url}/orders/{group_id}\n"
             )
             msg = EmailMultiAlternatives(
@@ -674,7 +684,9 @@ def api_orders(request):
                 "payment_status": o.payment_status,  # raw: Pending/Verified/Failed
                 "status": o.status,
                 "status_display": o.get_status_display() if hasattr(o, 'get_status_display') else o.status,
-                "total_price": 0.0,
+                "delivery_fee": getattr(o, 'delivery_fee', 0.0),
+                "gst_amount": getattr(o, 'gst_amount', 0.0),
+                "total_price": getattr(o, 'delivery_fee', 0.0) + getattr(o, 'gst_amount', 0.0),
                 "items": []
             }
             
@@ -886,8 +898,9 @@ def api_admin_orders(request):
                 "status_display": o.get_status_display() if hasattr(o, "get_status_display") else o.status,
                 "transaction_id": o.transaction_id,
                 "address": o.address,
-                "coupon_code": o.coupon_code,
-                "total_price": 0.0,
+                "delivery_fee": getattr(o, 'delivery_fee', 0.0),
+                "gst_amount": getattr(o, 'gst_amount', 0.0),
+                "total_price": getattr(o, 'delivery_fee', 0.0) + getattr(o, 'gst_amount', 0.0),
                 "items": []
             }
             
@@ -1111,7 +1124,10 @@ def api_order_detail(request, group_id):
     first_order = orders.first()
     
     items = []
-    total_price = sum(o.price * o.quantity for o in orders)
+    
+    delivery_fee = float(getattr(first_order, 'delivery_fee', 0.0))
+    gst_amount = float(getattr(first_order, 'gst_amount', 0.0))
+    total_price = sum(o.price * o.quantity for o in orders) + delivery_fee + gst_amount
     
     for order in orders:
         user_rating = 0
@@ -1136,18 +1152,21 @@ def api_order_detail(request, group_id):
 
     return JsonResponse({
         "id": group_id,
-        "status": first_order.status,
-        "status_display": first_order.get_status_display(),
-        "payment_method": first_order.payment_method,
-        "payment_status": first_order.payment_status,  # raw: Pending/Verified/Failed
-        "transaction_id": first_order.transaction_id,
-        "address": first_order.address,
+        "group_id": group_id,
         "date": localtime(first_order.created_at).strftime("%b %d, %Y"),
+        "created_at_iso": first_order.created_at.isoformat(),
         "time": localtime(first_order.created_at).strftime("%I:%M %p"),
-        "created_at_iso": first_order.created_at.isoformat(),  # for accurate JS date parsing
-        "updated_at": localtime(first_order.updated_at).strftime("%b %d, %Y %I:%M %p"),
-        "total_price": str(total_price),
+        "payment_method": first_order.payment_method,
+        "payment_status": first_order.payment_status,
+        "status": first_order.status,
+        "status_display": first_order.get_status_display() if hasattr(first_order, 'get_status_display') else first_order.status,
+        "transaction_id": first_order.transaction_id,
+        "address": getattr(first_order, 'address', ''),
+        "total_price": "{:.2f}".format(total_price),
+        "delivery_fee": "{:.2f}".format(delivery_fee),
+        "gst_amount": "{:.2f}".format(gst_amount),
         "items": items,
+        "updated_at": localtime(first_order.updated_at).strftime("%b %d, %Y %I:%M %p"),
     })
 
 

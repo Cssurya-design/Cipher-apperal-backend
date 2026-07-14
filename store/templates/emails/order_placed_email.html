@@ -175,9 +175,25 @@
         {% endfor %}
         
         <div class="totals">
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #4b5563;">
+            <span>Subtotal</span>
+            <span>₹{{ total_price }}</span>
+          </div>
+          {% if gst_amount and gst_amount != '0.00' %}
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #4b5563;">
+            <span>GST</span>
+            <span>₹{{ gst_amount }}</span>
+          </div>
+          {% endif %}
+          {% if delivery_fee %}
+          <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 5px; color: #4b5563;">
+            <span>Delivery Fee</span>
+            <span>{% if delivery_fee == '0.00' %}<span style="color: #10b981; font-weight: 600;">Free</span>{% else %}₹{{ delivery_fee }}{% endif %}</span>
+          </div>
+          {% endif %}
           <div class="grand-total">
             <span>Total</span>
-            <span>₹{{ total_price }}</span>
+            <span>₹{{ final_total }}</span>
           </div>
         </div>
       </div>

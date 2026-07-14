@@ -15,6 +15,7 @@ from .models import (
     ProductSize,
     ProductColor,
     ProductFeature,
+    CompanySetting,
 )
 
 # Register your models here.
@@ -119,3 +120,8 @@ class CouponAdmin(admin.ModelAdmin):
     list_display = ("code", "discount_percentage", "max_uses", "is_active", "valid_from", "valid_to")
     list_filter = ("is_active",)
     search_fields = ("code",)
+
+@admin.register(CompanySetting)
+class CompanySettingAdmin(admin.ModelAdmin):
+    list_display = ("key", "value", "updated_at")
+    search_fields = ("key", "value")
