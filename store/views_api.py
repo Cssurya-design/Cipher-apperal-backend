@@ -285,10 +285,7 @@ def api_get_products(request):
     elif sort == 'newest':
         products = products.order_by('-id')
     elif sort == 'rating':
-        # Annotate with average rating and sort
-        products = products.annotate(
-            avg_rating=Avg('productrating_set__rating')
-        ).order_by('-avg_rating')
+        pass # Will sort in python after calculating ratings
         
     data = []
     for p in products:
@@ -339,7 +336,10 @@ def api_get_products(request):
             "colors": colors_data,
             "features": features_data,
         })
-    return JsonResponse({"products": data, "total": len(data)})
+    if sort == 'rating':
+        data.sort(key=lambda x: x['avg_rating'], reverse=True)
+
+    return JsonResponse({'products': data, 'total': len(data)})
 
 def api_get_featured(request):
     featured_products = Product.objects.filter(category="featured")[:8]
@@ -418,8 +418,8 @@ def api_save_order(request):
             if product_id:
                 try:
                     product = Product.objects.get(id=product_id)
-                    # Deduct global product stock
-                    if product.stock is not None and product.stock > 0:
+                    # Deduct global product stock only if no sizes are provided
+                    if product.stock is not None and product.stock > 0 and not size_str:
                         product.stock = max(0, product.stock - quantity)
                         product.save()
                     
@@ -439,6 +439,11 @@ def api_save_order(request):
                             if prod_size and prod_size.stock > 0:
                                 prod_size.stock = max(0, prod_size.stock - quantity)
                                 prod_size.save()
+                                
+                                # Recalculate global product stock
+                                total_stock = sum(s.stock for s in product.sizes.all())
+                                product.stock = total_stock
+                                product.save()
                         except Exception:
                             pass
                 except Product.DoesNotExist:
@@ -684,9 +689,9 @@ def api_orders(request):
                 "payment_status": o.payment_status,  # raw: Pending/Verified/Failed
                 "status": o.status,
                 "status_display": o.get_status_display() if hasattr(o, 'get_status_display') else o.status,
-                "delivery_fee": getattr(o, 'delivery_fee', 0.0),
-                "gst_amount": getattr(o, 'gst_amount', 0.0),
-                "total_price": getattr(o, 'delivery_fee', 0.0) + getattr(o, 'gst_amount', 0.0),
+                "delivery_fee": float(getattr(o, 'delivery_fee', 0.0)),
+                "gst_amount": float(getattr(o, 'gst_amount', 0.0)),
+                "total_price": float(getattr(o, 'delivery_fee', 0.0)) + float(getattr(o, 'gst_amount', 0.0)),
                 "items": []
             }
             
@@ -898,9 +903,9 @@ def api_admin_orders(request):
                 "status_display": o.get_status_display() if hasattr(o, "get_status_display") else o.status,
                 "transaction_id": o.transaction_id,
                 "address": o.address,
-                "delivery_fee": getattr(o, 'delivery_fee', 0.0),
-                "gst_amount": getattr(o, 'gst_amount', 0.0),
-                "total_price": getattr(o, 'delivery_fee', 0.0) + getattr(o, 'gst_amount', 0.0),
+                "delivery_fee": float(getattr(o, 'delivery_fee', 0.0)),
+                "gst_amount": float(getattr(o, 'gst_amount', 0.0)),
+                "total_price": float(getattr(o, 'delivery_fee', 0.0)) + float(getattr(o, 'gst_amount', 0.0)),
                 "items": []
             }
             
@@ -948,6 +953,34 @@ def api_admin_update_order(request, group_id):
 
         for order in orders:
             if 'status' in data:
+                # If changing to cancelled, restore stock
+                if data['status'] == 'cancelled' and order.status != 'cancelled':
+                    try:
+                        product = Product.objects.get(name=order.product_name)
+                        size_str = order.size
+                        quantity = order.quantity
+                        
+                        if not size_str:
+                            if product.stock is not None:
+                                product.stock += quantity
+                                product.save()
+                        else:
+                            color_str = order.color
+                            prod_sizes = product.sizes.filter(size=size_str)
+                            if color_str:
+                                prod_sizes = prod_sizes.filter(color__color__iexact=color_str)
+                            prod_size = prod_sizes.first()
+                            if not prod_size:
+                                prod_size = product.sizes.filter(size=size_str).first()
+                            
+                            if prod_size:
+                                prod_size.stock += quantity
+                                prod_size.save()
+                                product.stock = sum(s.stock for s in product.sizes.all())
+                                product.save()
+                    except Product.DoesNotExist:
+                        pass
+                
                 order.status = data['status']
             if 'payment_status' in data:
                 order.payment_status = data['payment_status']
@@ -1194,8 +1227,36 @@ def api_cancel_order(request, group_id):
         )
 
     for order in orders:
-        order.status = 'cancelled'
-        order.save()
+        if order.status != 'cancelled':
+            order.status = 'cancelled'
+            order.save()
+            
+            # Restore stock
+            try:
+                product = Product.objects.get(name=order.product_name)
+                size_str = order.size
+                quantity = order.quantity
+                
+                if not size_str:
+                    if product.stock is not None:
+                        product.stock += quantity
+                        product.save()
+                else:
+                    color_str = order.color
+                    prod_sizes = product.sizes.filter(size=size_str)
+                    if color_str:
+                        prod_sizes = prod_sizes.filter(color__color__iexact=color_str)
+                    prod_size = prod_sizes.first()
+                    if not prod_size:
+                        prod_size = product.sizes.filter(size=size_str).first()
+                    
+                    if prod_size:
+                        prod_size.stock += quantity
+                        prod_size.save()
+                        product.stock = sum(s.stock for s in product.sizes.all())
+                        product.save()
+            except Product.DoesNotExist:
+                pass
         
     return JsonResponse({"status": "success", "message": "Order cancelled successfully."})
 
