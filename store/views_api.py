@@ -1300,6 +1300,7 @@ def api_admin_banners(request):
             "link": b.link,
             "position": b.position,
             "product_id": b.product_id,
+            "product_size_id": b.product_size_id,
             "is_active": b.is_active,
             "position_display": b.get_position_display(),
         } for b in banners]
@@ -1331,19 +1332,25 @@ def api_admin_banners(request):
                 link=data.get('link', ''),
                 position=data.get('position', 'main'),
                 product_id=data.get('product_id') or None,
+                product_size_id=data.get('product_size_id') or None,
                 is_active=data.get('is_active', 'true').lower() == 'true' if isinstance(data.get('is_active'), str) else data.get('is_active', True),
             )
             
             if banner.product and 'discount_price' in data:
                 dp = data.get('discount_price')
-                banner.product.discount_price = dp if dp else None
-                banner.product.save()
                 
-                # Update all sizes of the product
-                if dp:
-                    banner.product.sizes.update(discount_price=dp)
+                if banner.product_size:
+                    banner.product_size.discount_price = dp if dp else None
+                    banner.product_size.save()
                 else:
-                    banner.product.sizes.update(discount_price=None)
+                    banner.product.discount_price = dp if dp else None
+                    banner.product.save()
+                    
+                    # Update all sizes of the product
+                    if dp:
+                        banner.product.sizes.update(discount_price=dp)
+                    else:
+                        banner.product.sizes.update(discount_price=None)
                 
             return JsonResponse({"status": "success", "id": banner.id, "message": "Banner created successfully."})
         except Exception as e:
@@ -1376,6 +1383,7 @@ def api_admin_banner_detail(request, pk):
             if 'link' in data: banner.link = data['link']
             if 'position' in data: banner.position = data['position']
             if 'product_id' in data: banner.product_id = data['product_id'] or None
+            if 'product_size_id' in data: banner.product_size_id = data['product_size_id'] or None
             if 'is_active' in data: 
                 val = data['is_active']
                 banner.is_active = val.lower() == 'true' if isinstance(val, str) else val
@@ -1394,14 +1402,19 @@ def api_admin_banner_detail(request, pk):
             
             if banner.product and 'discount_price' in data:
                 dp = data.get('discount_price')
-                banner.product.discount_price = dp if dp else None
-                banner.product.save()
                 
-                # Update all sizes of the product
-                if dp:
-                    banner.product.sizes.update(discount_price=dp)
+                if banner.product_size:
+                    banner.product_size.discount_price = dp if dp else None
+                    banner.product_size.save()
                 else:
-                    banner.product.sizes.update(discount_price=None)
+                    banner.product.discount_price = dp if dp else None
+                    banner.product.save()
+                    
+                    # Update all sizes of the product
+                    if dp:
+                        banner.product.sizes.update(discount_price=dp)
+                    else:
+                        banner.product.sizes.update(discount_price=None)
                 
             return JsonResponse({"status": "success", "message": "Banner updated successfully."})
         except Exception as e:

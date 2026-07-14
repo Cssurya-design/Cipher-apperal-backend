@@ -267,6 +267,7 @@ class PromoBanner(models.Model):
     image = models.CharField(max_length=500, blank=True, default="", help_text="Image filename or path")
     link = models.CharField(max_length=255, blank=True, default="/shop")
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True, related_name="promoted_in")
+    product_size = models.ForeignKey('ProductSize', on_delete=models.SET_NULL, null=True, blank=True, related_name="promoted_in")
     position = models.CharField(max_length=20, choices=POSITION_CHOICES, default="main")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
