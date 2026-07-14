@@ -1363,7 +1363,7 @@ def api_admin_banners(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
 
-@api_view(['PUT', 'DELETE'])
+@api_view(['POST', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def api_admin_banner_detail(request, pk):
     """Admin endpoint to update or delete a specific banner"""
@@ -1375,7 +1375,7 @@ def api_admin_banner_detail(request, pk):
     except PromoBanner.DoesNotExist:
         return JsonResponse({"error": "Banner not found"}, status=404)
         
-    if request.method == 'PUT':
+    if request.method in ['PUT', 'POST']:
         try:
             if request.content_type and request.content_type.startswith('multipart/form-data'):
                 data = request.POST
