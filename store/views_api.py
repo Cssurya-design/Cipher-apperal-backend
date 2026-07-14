@@ -1301,6 +1301,7 @@ def api_admin_banners(request):
             "position": b.position,
             "product_id": b.product_id,
             "product_size_id": b.product_size_id,
+            "discount_price": b.product_size.discount_price if b.product_size else (b.product.discount_price if b.product else None),
             "is_active": b.is_active,
             "position_display": b.get_position_display(),
         } for b in banners]
@@ -1340,6 +1341,12 @@ def api_admin_banners(request):
                 dp = data.get('discount_price')
                 
                 if banner.product_size:
+                    # Clear global product discount so it doesn't bleed into other sizes
+                    banner.product.discount_price = None
+                    banner.product.save()
+                    # Optionally clear other sizes (or just rely on the fallback)
+                    banner.product.sizes.exclude(id=banner.product_size.id).update(discount_price=None)
+                    
                     banner.product_size.discount_price = dp if dp else None
                     banner.product_size.save()
                 else:
@@ -1404,6 +1411,12 @@ def api_admin_banner_detail(request, pk):
                 dp = data.get('discount_price')
                 
                 if banner.product_size:
+                    # Clear global product discount so it doesn't bleed into other sizes
+                    banner.product.discount_price = None
+                    banner.product.save()
+                    # Optionally clear other sizes (or just rely on the fallback)
+                    banner.product.sizes.exclude(id=banner.product_size.id).update(discount_price=None)
+                    
                     banner.product_size.discount_price = dp if dp else None
                     banner.product_size.save()
                 else:
