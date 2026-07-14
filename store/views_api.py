@@ -1339,6 +1339,12 @@ def api_admin_banners(request):
                 banner.product.discount_price = dp if dp else None
                 banner.product.save()
                 
+                # Update all sizes of the product
+                if dp:
+                    banner.product.sizes.update(discount_price=dp)
+                else:
+                    banner.product.sizes.update(discount_price=None)
+                
             return JsonResponse({"status": "success", "id": banner.id, "message": "Banner created successfully."})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)
@@ -1390,6 +1396,12 @@ def api_admin_banner_detail(request, pk):
                 dp = data.get('discount_price')
                 banner.product.discount_price = dp if dp else None
                 banner.product.save()
+                
+                # Update all sizes of the product
+                if dp:
+                    banner.product.sizes.update(discount_price=dp)
+                else:
+                    banner.product.sizes.update(discount_price=None)
                 
             return JsonResponse({"status": "success", "message": "Banner updated successfully."})
         except Exception as e:
