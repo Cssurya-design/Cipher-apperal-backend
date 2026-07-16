@@ -1264,22 +1264,42 @@ def api_cancel_order(request, group_id):
 def api_get_banners(request):
     """Fetch active promotional banners"""
     banners = PromoBanner.objects.filter(is_active=True).order_by('-id')
-    data = [{
-        "id": b.id,
-        "title": b.title,
-        "subtitle": b.subtitle,
-        "description": b.description,
-        "image": b.image,
-        "link": b.link,
-        "position": b.position,
-        "product": {
-            "id": b.product.id,
-            "name": b.product.name,
-            "price": str(b.product.price),
-            "discount_price": str(b.product.discount_price) if b.product.discount_price else None,
-            "image": b.product.image
-        } if b.product else None,
-    } for b in banners]
+    data = []
+    for b in banners:
+        product_data = None
+        if b.product:
+            sizes_data = [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in b.product.sizes.filter(color__isnull=True)]
+            colors_data = []
+            for c in b.product.colors.all():
+                colors_data.append({
+                    "id": c.id, 
+                    "color": c.color, 
+                    "image": c.image, 
+                    "sizes": [{"id": s.id, "size": s.size, "stock": s.stock, "price": str(s.price) if s.price is not None else None, "discount_price": str(s.discount_price) if s.discount_price is not None else None} for s in c.sizes.all()],
+                })
+            
+            product_data = {
+                "id": b.product.id,
+                "name": b.product.name,
+                "price": str(b.product.price),
+                "discount_price": str(b.product.discount_price) if b.product.discount_price else None,
+                "image": b.product.image,
+                "sizes": sizes_data,
+                "colors": colors_data
+            }
+            
+        data.append({
+            "id": b.id,
+            "title": b.title,
+            "subtitle": b.subtitle,
+            "description": b.description,
+            "image": b.image,
+            "link": b.link,
+            "position": b.position,
+            "product": product_data,
+            "product_size": b.product_size.size if b.product_size else None,
+            "product_color": b.product_size.color.color if b.product_size and b.product_size.color else ''
+        })
     return JsonResponse({"banners": data})
 
 @api_view(['GET', 'POST'])
