@@ -157,14 +157,14 @@ YOUR_DOMAIN = "http://localhost:8000"
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
 
-# Email backend configuration for Gmail
+# Email backend configuration for Zoho
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "suryacs1222@gmail.com"
-EMAIL_HOST_PASSWORD = "ylxuxuqlvcifyfbr"
-DEFAULT_FROM_EMAIL = "suryacs1222@gmail.com"
+EMAIL_HOST = "smtp.zoho.in"
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "surya.cs@suryacs.is-a.dev")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "M4bP6ycdXeVn")
+DEFAULT_FROM_EMAIL = os.environ.get("EMAIL_HOST_USER", "surya.cs@suryacs.is-a.dev")
 
 # Auth
 LOGIN_URL = "/login/"
