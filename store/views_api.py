@@ -183,13 +183,16 @@ def api_contact(request):
             )
             
             # Send Email
-            send_mail(
-                f"Cipher Apparel - New message from {name}: {subject}",
-                f"You have received a new message.\n\nName: {name}\nEmail: {email}\n\nMessage:\n{message}",
-                settings.DEFAULT_FROM_EMAIL,
-                [settings.DEFAULT_FROM_EMAIL],
-                fail_silently=True,
-            )
+            try:
+                send_mail(
+                    f"Cipher Apparel - New message from {name}: {subject}",
+                    f"You have received a new message.\n\nName: {name}\nEmail: {email}\n\nMessage:\n{message}",
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.DEFAULT_FROM_EMAIL],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"[EMAIL ERROR] Failed to send contact email: {e}")
             return JsonResponse({"status": "success", "message": "Message sent!"})
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=400)

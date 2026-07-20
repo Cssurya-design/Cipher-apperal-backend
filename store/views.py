@@ -352,10 +352,10 @@ def signup_view(request):
             user.profile_pic = profile_pic
             user.save()
 
-        # Send welcome email (printed to console in dev mode)
+        # Send welcome email
         try:
             send_mail(
-                subject="Welcome to Cipher Apparel! 🎉",
+                subject="Welcome to Cipher Apparel!",
                 message=(
                     f"Hi {name},\n\n"
                     f"Welcome to Cipher Apparel! Your account has been created successfully.\n\n"
@@ -368,10 +368,10 @@ def signup_view(request):
                 ),
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[email],
-                fail_silently=True,
+                fail_silently=False,
             )
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[EMAIL ERROR] Failed to send welcome email: {e}")
 
         messages.success(request, "Account created! Please log in.")
         return redirect("/login/")
@@ -638,10 +638,10 @@ def save_order_view(request):
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 recipient_list=[user.email],
                 html_message=html_message,
-                fail_silently=True,
+                fail_silently=False,
             )
         except Exception as e:
-            print(f"Error sending order email: {e}")
+            print(f"[EMAIL ERROR] Failed to send order email: {e}")
 
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "method not allowed"}, status=405)
